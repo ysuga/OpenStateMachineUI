@@ -12,6 +12,9 @@ import net.ysuga.statemachine.StateMachine;
 import net.ysuga.statemachine.StateMachineTagNames;
 import net.ysuga.statemachine.state.State;
 import net.ysuga.statemachine.transition.Transition;
+import net.ysuga.statemachine.ui.shape.state.DefaultStateShape;
+import net.ysuga.statemachine.ui.shape.state.StartStateShape;
+import net.ysuga.statemachine.ui.shape.state.StateShape;
 
 /**
  * @author ysuga
@@ -35,7 +38,7 @@ public class StateMachineShapeBuilder {
 		StateMachineShape stateMachineShape = new StateMachineShape();
 		synchronized(stateMachine) {
 			for(State state : stateMachine.getStateMap().values()) {
-				if(state.getName() == StateMachineTagNames.START) {
+				if(state.getName().equals(StateMachineTagNames.START)) {
 					stateMachineShape.stateShapeList.add(new StartStateShape(state));
  				}else {
  					stateMachineShape.stateShapeList.add(new DefaultStateShape(state));
@@ -45,6 +48,7 @@ public class StateMachineShapeBuilder {
 			for(State state : stateMachine.getStateMap().values()) {
 				for(Transition transition : state.getTransitionMap().values()) {
 					StateShape sourceShape = stateMachineShape.getStateShape(transition.getSourceState());
+					
 					StateShape targetShape = stateMachineShape.getStateShape(transition.getTargetState());
 					stateMachineShape.transitionShapeList.add(new TransitionShape(transition, sourceShape, targetShape));
 				}

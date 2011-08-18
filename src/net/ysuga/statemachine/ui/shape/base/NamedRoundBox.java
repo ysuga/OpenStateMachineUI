@@ -1,4 +1,4 @@
-package net.ysuga.statemachine.ui.shape;
+package net.ysuga.statemachine.ui.shape.base;
 
 import java.awt.Color;
 import java.awt.Font;

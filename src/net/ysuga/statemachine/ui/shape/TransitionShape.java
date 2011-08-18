@@ -16,6 +16,8 @@ import java.awt.geom.Rectangle2D;
 
 import net.ysuga.statemachine.transition.PivotList;
 import net.ysuga.statemachine.transition.Transition;
+import net.ysuga.statemachine.ui.shape.base.PivottedNamedArrow;
+import net.ysuga.statemachine.ui.shape.state.StateShape;
 
 /**
  * @author ysuga

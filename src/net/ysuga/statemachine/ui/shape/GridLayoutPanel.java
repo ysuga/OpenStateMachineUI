@@ -35,5 +35,15 @@ public class GridLayoutPanel extends JPanel {
 		add(label);
 	}
 	
+	final public void addComponent(int x, int y, double wx, double wy, int w, int h, Component label) {
+		constraints.gridx = x;
+		constraints.gridy = y;
+		constraints.weightx = wx;
+		constraints.weighty = wy;
+		constraints.gridwidth = w;
+		constraints.gridheight = h;
+		gridBag.setConstraints(label, constraints);
+		add(label);
+	}
 
 }

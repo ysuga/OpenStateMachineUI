@@ -13,6 +13,8 @@ import java.awt.Graphics2D;
 
 import net.ysuga.statemachine.state.State;
 import net.ysuga.statemachine.transition.Transition;
+import net.ysuga.statemachine.ui.shape.state.StateShape;
+import net.ysuga.statemachine.ui.shape.state.StateShapeList;
 
 /**
  * @author ysuga

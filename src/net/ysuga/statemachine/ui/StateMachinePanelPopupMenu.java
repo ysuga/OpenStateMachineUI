@@ -33,6 +33,7 @@ public class StateMachinePanelPopupMenu {
 
 	private JPopupMenu popupMenu;
 	
+	
 	private StateMachinePanel panel;
 	
 	private Point location;

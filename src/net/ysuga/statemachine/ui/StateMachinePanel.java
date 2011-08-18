@@ -22,6 +22,7 @@ import net.ysuga.statemachine.state.State;
 import net.ysuga.statemachine.transition.Transition;
 import net.ysuga.statemachine.ui.shape.StateMachineShape;
 import net.ysuga.statemachine.ui.shape.StateMachineShapeBuilder;
+import net.ysuga.statemachine.ui.shape.TransitionPopupMenu;
 import net.ysuga.statemachine.ui.state.DefaultStateSettingDialogFactory;
 import net.ysuga.statemachine.ui.state.StatePopupMenu;
 import net.ysuga.statemachine.ui.state.StateSettingDialogFactoryManager;
@@ -105,6 +106,7 @@ public class StateMachinePanel extends JPanel {
 	}
 	
 	private StateMachinePanelPopupMenu stateMachinePanelPopupMenu;
+	private TransitionPopupMenu transitionPopupMenu;
 	
 	public StateMachinePanel(StateMachine stateMachine) {
 		this.stateMachine = stateMachine;
@@ -117,6 +119,7 @@ public class StateMachinePanel extends JPanel {
 		StateSettingDialogFactoryManager.add(new DefaultStateSettingDialogFactory());
 
 		this.statePopupMenu = new StatePopupMenu(this);
+		this.transitionPopupMenu = new TransitionPopupMenu(this);
 		this.stateMachinePanelPopupMenu = new StateMachinePanelPopupMenu(this);
 	}
 	
@@ -156,6 +159,20 @@ public class StateMachinePanel extends JPanel {
 	 */
 	public StateMachinePanelPopupMenu getPopupMenu() {
 		return stateMachinePanelPopupMenu;
+	}
+
+	/**
+	 * <div lang="ja">
+	 *
+	 * @return
+	 * </div>
+	 * <div lang="en">
+	 *
+	 * @return
+	 * </div>
+	 */
+	public TransitionPopupMenu getTransitionPopupMenu() {
+		return transitionPopupMenu;
 	}
 
 

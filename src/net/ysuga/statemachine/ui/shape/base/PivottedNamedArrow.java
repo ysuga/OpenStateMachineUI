@@ -1,4 +1,4 @@
-package net.ysuga.statemachine.ui.shape;
+package net.ysuga.statemachine.ui.shape.base;
 
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -117,6 +117,7 @@ public class PivottedNamedArrow {
 			flag |= lineContains(oldPoint.x, oldPoint.y, p.x, p.y, point);
 			oldPoint = p;
 		}
+		flag |= lineContains(oldPoint.x, oldPoint.y, endPoint.x, endPoint.y, point);
 		flag |= namedArrow.contains(point);
 		return flag;
 	}

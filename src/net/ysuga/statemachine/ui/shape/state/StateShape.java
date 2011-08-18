@@ -6,9 +6,10 @@
  * @copyright 2011, ysuga.net allrights reserved.
  *
  */
-package net.ysuga.statemachine.ui.shape;
+package net.ysuga.statemachine.ui.shape.state;
 
 import net.ysuga.statemachine.state.State;
+import net.ysuga.statemachine.ui.shape.ModelShape;
 
 /**
  * @author ysuga

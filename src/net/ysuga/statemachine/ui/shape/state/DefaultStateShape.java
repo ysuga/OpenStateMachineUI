@@ -1,12 +1,12 @@
 /**
- * StartStateShape.java
+ * StateShape.java
  *
  * @author Yuki Suga (ysuga.net)
- * @date 2011/08/11
+ * @date 2011/08/07
  * @copyright 2011, ysuga.net allrights reserved.
  *
  */
-package net.ysuga.statemachine.ui.shape;
+package net.ysuga.statemachine.ui.shape.state;
 
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -14,52 +14,44 @@ import java.awt.Rectangle;
 
 import net.ysuga.statemachine.state.ModelElement;
 import net.ysuga.statemachine.state.State;
+import net.ysuga.statemachine.ui.shape.base.NamedRoundBox;
 
 /**
  * @author ysuga
  *
  */
-public class StartStateShape implements StateShape {
+public class DefaultStateShape implements StateShape {
 
-	private NamedCircle namedCircle;
-	
+	private NamedRoundBox box;
 	private State state;
 	
-	@Override
-	public State getState() {
-		return state;
-	}
+	static int boxwidth = 80;
+	static int boxheight = 60;
 	
 	/**
 	 * <div lang="ja">
 	 * コンストラクタ
-	 * @param name
-	 * @param x
-	 * @param y
-	 * @param radius
 	 * </div>
 	 * <div lang="en">
 	 * Constructor
-	 * @param name
-	 * @param x
-	 * @param y
-	 * @param radius
 	 * </div>
 	 */
-	public StartStateShape(State state) {
-		namedCircle = new NamedCircle(state.getName(), state.getX()+10, state.getY()+10, 10.0);
+	public DefaultStateShape(State state) {
+		box = new NamedRoundBox(state.getName(), state.getX(), state.getY(), boxwidth, boxheight);
 		this.state = state;
 	}
-
-	
-	@Override
-	public double getX() {
-		return namedCircle.getBounds().x;
-	}
-	
-	@Override
-	public double getY() {
-		return namedCircle.getBounds().y;
+	/**
+	 * <div lang="ja">
+	 *
+	 * @return
+	 * </div>
+	 * <div lang="en">
+	 *
+	 * @return
+	 * </div>
+	 */
+	public Point getCenterPoint() {
+		return new Point((int)box.getCenterX(), (int)box.getCenterY());
 	}
 	/**
 	 * <div lang="ja">
@@ -71,22 +63,8 @@ public class StartStateShape implements StateShape {
 	 */
 	@Override
 	public void draw(Graphics2D g) {
-		namedCircle.draw(g);
+		box.draw(g);
 	}
-
-	/**
-	 * <div lang="ja">
-	 * @return
-	 * </div>
-	 * <div lang="en">
-	 * @return
-	 * </div>
-	 */
-	@Override
-	public Point getCenterPoint() {
-		return  new Point((int)namedCircle.getCenterX(), (int)namedCircle.getCenterY());
-	}
-
 	/**
 	 * <div lang="ja">
 	 * @param p
@@ -99,7 +77,7 @@ public class StartStateShape implements StateShape {
 	 */
 	@Override
 	public boolean contains(Point p) {
-		return namedCircle.contains(p);
+		return box.contains(p);
 	}
 
 	/**
@@ -112,9 +90,8 @@ public class StartStateShape implements StateShape {
 	 */
 	@Override
 	public Rectangle getBounds() {
-		return namedCircle.getBounds();
+		return box.getBounds();
 	}
-
 	/**
 	 * <div lang="ja">
 	 * @param flag
@@ -125,9 +102,8 @@ public class StartStateShape implements StateShape {
 	 */
 	@Override
 	public void setSelected(boolean flag) {
-		namedCircle.setSelected(flag);
+		box.setSelected(flag);
 	}
-
 	/**
 	 * <div lang="ja">
 	 * @return
@@ -138,7 +114,28 @@ public class StartStateShape implements StateShape {
 	 */
 	@Override
 	public boolean isSelected() {
-		return namedCircle.isSelected();
+		return box.isSelected();
+	}
+	/**
+	 * <div lang="ja">
+	 * @return
+	 * </div>
+	 * <div lang="en">
+	 * @return
+	 * </div>
+	 */
+	@Override
+	public State getState() {
+		return state;
 	}
 
+	@Override
+	public double getX() {
+		return box.x;
+	}
+	
+	@Override
+	public double getY() {
+		return box.y;
+	}
 }

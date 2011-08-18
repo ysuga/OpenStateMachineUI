@@ -34,8 +34,6 @@ public class StateMachinePanelTest {
 	public class MainFrame extends JFrame {
 		public MainFrame() {
 			super("StateMachinePanelTest");
-			setSize(500, 500);
-			setVisible(true);
 
 			StateMachine stateMachine;
 			try {
@@ -67,6 +65,9 @@ public class StateMachinePanelTest {
 			}
 
 			super.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			setSize(500, 500);
+			setVisible(true);
+
 		}
 	}
 
