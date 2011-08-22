@@ -1,19 +1,12 @@
-package net.ysuga.statemachine.ui.shape;
+package net.ysuga.statemachine.ui.guard;
 
 import java.awt.BorderLayout;
-import java.awt.GridBagConstraints;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Set;
-import java.util.TreeMap;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -21,15 +14,10 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.xml.parsers.ParserConfigurationException;
 
-import net.ysuga.statemachine.StateMachine;
-import net.ysuga.statemachine.StateMachineTagNames;
-import net.ysuga.statemachine.exception.InvalidConnectionException;
-import net.ysuga.statemachine.guard.DelayGuard;
+import net.ysuga.statemachine.exception.InvalidGuardException;
 import net.ysuga.statemachine.guard.Guard;
-import net.ysuga.statemachine.guard.GuardFactoryManager;
-import net.ysuga.statemachine.state.State;
-import net.ysuga.statemachine.transition.Transition;
-import net.ysuga.statemachine.ui.StateMachinePanel;
+import net.ysuga.statemachine.ui.shape.GridLayoutPanel;
+import net.ysuga.statemachine.ui.shape.TransitionSettingDialog;
 
 import org.xml.sax.SAXException;
 
@@ -37,7 +25,7 @@ public abstract class AbstractGuardSettingDialog extends JDialog {
 
 	static final int CANCEL_OPTION = JOptionPane.CANCEL_OPTION;
 
-	static final int OK_OPTION = JOptionPane.OK_OPTION;
+	public static final int OK_OPTION = JOptionPane.OK_OPTION;
 
 	int exitOption = CANCEL_OPTION;
 
@@ -49,11 +37,28 @@ public abstract class AbstractGuardSettingDialog extends JDialog {
 
 	private TransitionSettingDialog transitionSettingDialog;
 	
+	public TransitionSettingDialog getTransitionSettingDialog() {
+		return transitionSettingDialog;
+	}
+	
+	private JButton okButton;
+
+	public JButton getOKButton() {
+		return okButton;
+	}
+	JTextField guardNameField;
+	
+	public String getGuardName() {
+		return guardNameField.getText();
+	}
+	
 	private AbstractGuardSettingDialog(TransitionSettingDialog transitionSettingDialog) {
 		super();
 		this.transitionSettingDialog = transitionSettingDialog;
 
 		parentContentPane = (JPanel) this.getContentPane();
+		guardNameField = new JTextField("Guard");
+
 		
 	}
 	/**
@@ -78,20 +83,24 @@ public abstract class AbstractGuardSettingDialog extends JDialog {
 	 * @return void
 	 */
 	private void initPanel() {
-		contentPane = (JPanel)getContentPane();
-		contentPane.add(new JLabel("Input Guard Parameter"), BorderLayout.NORTH);
-		GridLayoutPanel panel = new GridLayoutPanel();
-		initPanel(panel);
-		contentPane.add(panel, BorderLayout.CENTER);
-		
-		JButton okButton = new JButton(new AbstractAction("OK") {
+		okButton = new JButton(new AbstractAction("OK") {
 			public void actionPerformed(ActionEvent arg0) {
 				onOk(arg0);
 			}
 		});
+
+		contentPane = (JPanel)getContentPane();
+		JPanel namePanel = new JPanel();
+		namePanel.setLayout(new GridLayout(1, 2));
+		namePanel.add(new JLabel("Guard Name"));
+		namePanel.add(guardNameField);
+		contentPane.add(namePanel, BorderLayout.NORTH);
+		GridLayoutPanel panel = new GridLayoutPanel();
+		initPanel(panel);
+		contentPane.add(panel, BorderLayout.CENTER);
 		contentPane.add(okButton, BorderLayout.SOUTH);
 		okButton.setRequestFocusEnabled(true);
-		pack();
+		
 	}
 
 	final private void canceled(ActionEvent arg0) {
@@ -108,15 +117,12 @@ public abstract class AbstractGuardSettingDialog extends JDialog {
 	public int doModal() {
 		initPanel();
 		exitOption = CANCEL_OPTION;
-		setSize(400, 400);
+		pack();
 		setModal(true);
 		setVisible(true);
 		return exitOption;
 	}
 
-	public Guard createGuard() {
-		return new DelayGuard("test1", 500);
-	}
-	
+	public abstract Guard createGuard() throws InvalidGuardException;
 
 }

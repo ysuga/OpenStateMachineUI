@@ -11,9 +11,10 @@ package net.ysuga.statemachine.ui.shape.state;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.event.MouseEvent;
 
-import net.ysuga.statemachine.state.ModelElement;
 import net.ysuga.statemachine.state.State;
+import net.ysuga.statemachine.ui.StateMachinePanel;
 import net.ysuga.statemachine.ui.shape.base.NamedCircle;
 
 /**
@@ -142,4 +143,24 @@ public class StartStateShape implements StateShape {
 		return namedCircle.isSelected();
 	}
 
+	@Override
+	public State getOwnerState() {
+		return state;
+	}
+
+	/**
+	 * <div lang="ja">
+	 * @param panel
+	 * @param arg0
+	 * </div>
+	 * <div lang="en">
+	 * @param panel
+	 * @param arg0
+	 * </div>
+	 */
+	public void onClicked(StateMachinePanel panel, MouseEvent arg0) {
+		if (arg0.getButton() == MouseEvent.BUTTON3) { // RightClick
+			panel.getStatePopupMenu().show(panel, arg0.getPoint());
+		}
+	}
 }

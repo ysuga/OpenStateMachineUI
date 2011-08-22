@@ -2,6 +2,7 @@ package net.ysuga.statemachine.ui.shape;
 
 import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Set;
@@ -21,12 +22,15 @@ import javax.xml.parsers.ParserConfigurationException;
 import net.ysuga.statemachine.StateMachine;
 import net.ysuga.statemachine.StateMachineTagNames;
 import net.ysuga.statemachine.exception.InvalidConnectionException;
-import net.ysuga.statemachine.guard.DelayGuard;
+import net.ysuga.statemachine.exception.InvalidGuardException;
 import net.ysuga.statemachine.guard.Guard;
 import net.ysuga.statemachine.guard.GuardFactoryManager;
 import net.ysuga.statemachine.state.State;
 import net.ysuga.statemachine.transition.Transition;
 import net.ysuga.statemachine.ui.StateMachinePanel;
+import net.ysuga.statemachine.ui.guard.AbstractGuardSettingDialog;
+import net.ysuga.statemachine.ui.guard.GuardSettingDialogFactory;
+import net.ysuga.statemachine.ui.guard.GuardSettingDialogFactoryManager;
 
 import org.xml.sax.SAXException;
 
@@ -41,6 +45,7 @@ public class TransitionSettingDialog extends JDialog {
 	static int okCount = 0;
 
 	private Transition transition;
+	
 	private State sourceState;
 
 	JTextField transitionNameField;
@@ -55,15 +60,17 @@ public class TransitionSettingDialog extends JDialog {
 
 	private JComboBox guardKindComboBox;
 
-	private JTextField guardNameField;
-
 	private JButton guardSettingButton;
 
 	GridLayoutPanel contentPane;
 
 	JPanel parentContentPane;
 
+	private Guard guard;
+	
 	private StateMachinePanel panel;
+
+	public StateMachinePanel getStateMachinePanel() {return panel;}
 
 	private HashMap<String, TreeMap<String, JComponent>> operatorAndOperandComboBoxesMap;
 
@@ -78,7 +85,7 @@ public class TransitionSettingDialog extends JDialog {
 		toNameComboBox = new JComboBox();
 		fromNameComboBox = new JComboBox();
 
-		for (State state : panel.getStateMachine().getStateMap().values()) {
+		for (State state : panel.getStateMachine().getStateCollection()) {
 			String stateName = state.getName();
 			if (!stateName.equals(StateMachineTagNames.START)) {
 				toNameComboBox.addItem(stateName);
@@ -88,8 +95,6 @@ public class TransitionSettingDialog extends JDialog {
 				fromNameComboBox.addItem(stateName);
 			}
 		}
-
-		guardNameField = new JTextField();
 
 		guardKindComboBox = new JComboBox();
 		Set<String> kindSet = GuardFactoryManager.getInstance().getKindSet();
@@ -105,16 +110,23 @@ public class TransitionSettingDialog extends JDialog {
 	}
 
 	private void onGuardSettingButtonPressed() {
+		String kind = (String) guardKindComboBox.getSelectedItem();
 		GuardSettingDialogFactory factory = GuardSettingDialogFactoryManager
 				.getInstance()
-				.get((String) guardKindComboBox.getSelectedItem());
+				.get(kind);
 		if (factory == null) {
 			JOptionPane.showMessageDialog(panel, "Guard Kind(" + guardKindComboBox.getSelectedItem() + ") is not properly registered");
 		}
-		AbstractGuardSettingDialog guardSettingDialog = factory
-				.createGuardSettingDialog(this);
+		AbstractGuardSettingDialog guardSettingDialog = factory.createGuardSettingDialog(this);
 		if(guardSettingDialog.doModal() == AbstractGuardSettingDialog.OK_OPTION) {
-			// TODO: ここでguard作成してOKボタンをOKにする．
+			try {
+				guard = guardSettingDialog.createGuard();
+			} catch (InvalidGuardException e) {
+				// TODO 自動生成された catch ブロック
+				e.printStackTrace();
+				return;
+			}
+			okButton.setEnabled(true);
 		}
 	}
 
@@ -136,11 +148,17 @@ public class TransitionSettingDialog extends JDialog {
 		fromNameComboBox.setSelectedItem(transition.getSourceState().getName());
 		toNameComboBox.setSelectedItem(transition.getTargetState().getName());
 
-		guardNameField.setText(transition.getGuard().getName());
 		guardKindComboBox.setSelectedItem(transition.getGuard().getKind());
+		guardKindComboBox.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				okButton.setEnabled(false);
+			}
+		});
 	}
 
 	int maxLine = 3;
+	
+	private JButton okButton;
 
 	/**
 	 * 
@@ -166,21 +184,17 @@ public class TransitionSettingDialog extends JDialog {
 		contentPane.addComponent(GridBagConstraints.RELATIVE, 4, 8, 1,
 				toNameComboBox);
 
-		contentPane.addComponent(0, 5, 10, 0, 2, 1, new JLabel("Guard Name"));
-		contentPane.addComponent(GridBagConstraints.RELATIVE, 5, 8, 1,
-				guardNameField);
-
-		contentPane.addComponent(0, 6, 10, 0, 2, 1, new JLabel("Guard Kind"));
-		contentPane.addComponent(GridBagConstraints.RELATIVE, 6, 10, 0, 7, 1,
+		contentPane.addComponent(0, 5, 10, 0, 2, 1, new JLabel("Guard Kind"));
+		contentPane.addComponent(GridBagConstraints.RELATIVE, 5, 10, 0, 7, 1,
 				guardKindComboBox);
-		contentPane.addComponent(GridBagConstraints.RELATIVE, 6, 0, 0, 1, 1,
+		contentPane.addComponent(GridBagConstraints.RELATIVE, 5, 0, 0, 1, 1,
 				guardSettingButton);
 
 		int line = 0;
 		// baseOffset = 3;
 		// initParameterPanel();
 
-		contentPane.addComponent(9, 7 + maxLine, 0, 0, 1, 1, new JButton(
+		contentPane.addComponent(9, 6 + maxLine, 0, 0, 1, 1, new JButton(
 				new AbstractAction("Cancel") {
 					public void actionPerformed(ActionEvent arg0) {
 						exitOption = CANCEL_OPTION;
@@ -188,12 +202,13 @@ public class TransitionSettingDialog extends JDialog {
 					}
 				}));
 
-		JButton okButton = new JButton(new AbstractAction("OK") {
+		okButton = new JButton(new AbstractAction("OK") {
 			public void actionPerformed(ActionEvent arg0) {
 				onOk(arg0);
 			}
 		});
-		contentPane.addComponent(9, 8 + maxLine, 0, 0, 1, 1, okButton);
+		okButton.setEnabled(false);
+		contentPane.addComponent(9, 7 + maxLine, 0, 0, 1, 1, okButton);
 		okButton.setRequestFocusEnabled(true);
 		pack();
 	}
@@ -212,15 +227,13 @@ public class TransitionSettingDialog extends JDialog {
 	public int doModal() {
 		initPanel();
 		exitOption = CANCEL_OPTION;
-		setSize(400, 400);
+		//setSize(400, 400);
+		pack();
 		setModal(true);
 		setVisible(true);
 		return exitOption;
 	}
 
-	public Guard createGuard() {
-		return new DelayGuard("test1", 500);
-	}
 
 	public void createTransition() throws InvalidConnectionException {
 		// String transitionName = transitionNameField.getText();
@@ -230,7 +243,7 @@ public class TransitionSettingDialog extends JDialog {
 				.getState((String) this.fromNameComboBox.getSelectedItem());
 		State newTargetState = stateMachine
 				.getState((String) this.toNameComboBox.getSelectedItem());
-		Guard newGuard = createGuard();
+		Guard newGuard = guard;
 		if (newSourceState == null || newTargetState == null) {
 			// TODO : error
 		}

@@ -37,7 +37,7 @@ public class StateMachineShapeBuilder {
 	static public StateMachineShape buildStateMachineShape(StateMachine stateMachine) {
 		StateMachineShape stateMachineShape = new StateMachineShape();
 		synchronized(stateMachine) {
-			for(State state : stateMachine.getStateMap().values()) {
+			for(State state : stateMachine.getStateCollection()) {
 				if(state.getName().equals(StateMachineTagNames.START)) {
 					stateMachineShape.stateShapeList.add(new StartStateShape(state));
  				}else {
@@ -45,7 +45,7 @@ public class StateMachineShapeBuilder {
  				}
 			}
 			
-			for(State state : stateMachine.getStateMap().values()) {
+			for(State state : stateMachine.getStateCollection()) {
 				for(Transition transition : state.getTransitionMap().values()) {
 					StateShape sourceShape = stateMachineShape.getStateShape(transition.getSourceState());
 					

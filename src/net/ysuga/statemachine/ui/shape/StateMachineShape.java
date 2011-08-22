@@ -8,10 +8,12 @@
  */
 package net.ysuga.statemachine.ui.shape;
 
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 
 import net.ysuga.statemachine.state.State;
+import net.ysuga.statemachine.state.StateCondition;
 import net.ysuga.statemachine.transition.Transition;
 import net.ysuga.statemachine.ui.shape.state.StateShape;
 import net.ysuga.statemachine.ui.shape.state.StateShapeList;
@@ -57,7 +59,13 @@ public class StateMachineShape {
 	
 	public void draw(Graphics g) {
 		for(ModelShape stateShape : stateShapeList) {
+			Color oldColor = g.getColor();
+			if(stateShape.getOwnerState().getStateCondition().equals(StateCondition.ACTIVE)) {
+				g.setColor(Color.red);
+			}
+			
 			stateShape.draw((Graphics2D)g);
+			g.setColor(oldColor);
 		}
 		
 		for(TransitionShape transitionShape : transitionShapeList) {
@@ -66,8 +74,17 @@ public class StateMachineShape {
 		
 		ModelShape stateShape = getSelectedShape();
 		if(stateShape != null) {
+			Color oldColor = g.getColor();
+			if(stateShape.getOwnerState().getStateCondition().equals(StateCondition.ACTIVE)) {
+				g.setColor(Color.red);
+			}
+			
 			stateShape.draw((Graphics2D)g);
+			
+			g.setColor(oldColor);
 		}
+		
+		
 	}
 	
 

@@ -53,10 +53,7 @@ public class StateMachinePanelMouseAdapter implements MouseListener,
 				int dx = (int) (arg0.getPoint().x - stateShape.getX());
 				int dy = (int) (arg0.getPoint().y - stateShape.getY());
 				setSelectedOffset(new Point(dx, dy));
-
-				if (arg0.getButton() == MouseEvent.BUTTON3) { // RightClick
-					panel.getStatePopupMenu().show(panel, arg0.getPoint());
-				}
+				stateShape.onClicked(panel, arg0);
 				return;
 			}
 		}
@@ -69,6 +66,24 @@ public class StateMachinePanelMouseAdapter implements MouseListener,
 
 				if (arg0.getButton() == MouseEvent.BUTTON3) { // RightClick
 					panel.getTransitionPopupMenu().show(panel, arg0.getPoint());
+				}
+				
+				if(arg0.getButton() == MouseEvent.BUTTON1 && arg0.getClickCount() == 2) {
+					PivotList list = transitionShape.getTransition().getPivotList();
+					Point nearestPivot = null;
+					Point mouse = arg0.getPoint();
+					for(Point pivot : list) {
+						int dx = pivot.x - mouse.x;
+						int dy = pivot.y - mouse.y;
+						double distance = Math.sqrt(dx*dx + dy*dy);
+						if(distance < 10) {
+							nearestPivot = pivot;
+						}
+
+					}
+					if(nearestPivot != null) {
+						list.remove(nearestPivot);
+					}
 				}
 				return;
 			}

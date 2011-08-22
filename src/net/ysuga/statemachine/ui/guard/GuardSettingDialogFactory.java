@@ -6,7 +6,9 @@
  * @copyright 2011, ysuga.net allrights reserved.
  *
  */
-package net.ysuga.statemachine.ui.shape;
+package net.ysuga.statemachine.ui.guard;
+
+import net.ysuga.statemachine.ui.shape.TransitionSettingDialog;
 
 
 /**
