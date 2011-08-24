@@ -57,9 +57,7 @@ public abstract class AbstractGuardSettingDialog extends JDialog {
 		this.transitionSettingDialog = transitionSettingDialog;
 
 		parentContentPane = (JPanel) this.getContentPane();
-		guardNameField = new JTextField("Guard");
-
-		
+		guardNameField = new JTextField("Guard");	
 	}
 	/**
 	 * @param loader
@@ -124,5 +122,34 @@ public abstract class AbstractGuardSettingDialog extends JDialog {
 	}
 
 	public abstract Guard createGuard() throws InvalidGuardException;
+
+	/**
+	 * setDefaultSetting
+	 * <div lang="ja">
+	 * 
+	 * @param guard
+	 * </div>
+	 * <div lang="en">
+	 *
+	 * @param guard
+	 * </div>
+	 */
+	public abstract void setDefaultSetting(Guard guard);
+
+	/**
+	 * setGuardName
+	 * <div lang="ja">
+	 * 
+	 * @param name
+	 * </div>
+	 * <div lang="en">
+	 *
+	 * @param name
+	 * </div>
+	 */
+	public void setGuardName(String name) {
+		this.guardNameField.setText(name);
+	}
+	
 
 }

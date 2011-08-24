@@ -44,6 +44,8 @@ public class NamedCircle {
 	private GlyphVector glyphVector;
 	final public String getName() {return name;}
 	
+	private boolean filled = true;;
+	
 	public NamedCircle(String name, int x, int y, Double radius) {
 		this.name = name;
 		ellipse = new Ellipse2D.Double(x-radius, y - radius, radius * 2, radius * 2);
@@ -90,7 +92,11 @@ public class NamedCircle {
 	}
 	
 	public void draw(Graphics2D g) {
-		g.fill(getEllipse());
+		if(filled) {
+			g.fill(getEllipse());
+		} else {
+			g.draw(getEllipse());
+		}
 		
 		g.drawGlyphVector(getGlyphVector(), getBounds().x, getBounds().y);
 		

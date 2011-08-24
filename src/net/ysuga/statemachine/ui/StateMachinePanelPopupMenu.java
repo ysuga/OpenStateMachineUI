@@ -19,7 +19,11 @@ import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
 
+import net.ysuga.statemachine.StateMachine;
+import net.ysuga.statemachine.StateMachineTagNames;
 import net.ysuga.statemachine.exception.InvalidStateNameException;
+import net.ysuga.statemachine.state.ExitState;
+import net.ysuga.statemachine.state.StartState;
 import net.ysuga.statemachine.state.State;
 import net.ysuga.statemachine.ui.state.AbstractStateSettingDialog;
 import net.ysuga.statemachine.ui.state.StateSettingDialogFactory;
@@ -87,7 +91,7 @@ public class StateMachinePanelPopupMenu {
 			StateSettingDialogFactory factory = StateSettingDialogFactoryManager.getInstance().get(kind);
 			AbstractStateSettingDialog dialog = factory.createStateSettingDialog(null);
 			if(dialog.doModal() == AbstractStateSettingDialog.OK_OPTION) {
-				State state = dialog.createState();
+				State state = dialog.buildState();
 				try {
 					state.setLocation(getLocation());
 					panel.getStateMachine().add(state);
@@ -135,30 +139,41 @@ public class StateMachinePanelPopupMenu {
 		popupMenu = new JPopupMenu();
 		startMenuItem = new JMenuItem(new AbstractAction("Start") {
 			public void actionPerformed(ActionEvent e) {
-				
+				onStart();
 			}
 		});
+		if(panel.getStateMachine().getExecutionState() != StateMachine.HALT) {
+			startMenuItem.setEnabled(false);
+		}
 		
 		suspendMenuItem = new JMenuItem(new AbstractAction("Suspend") {
 			public void actionPerformed(ActionEvent e) {
-				
+				onSuspend();
 			}
 		});
-		suspendMenuItem.setEnabled(false);
+		if(panel.getStateMachine().getExecutionState() != StateMachine.OPERATING) {
+			suspendMenuItem.setEnabled(false);
+		}
 		
 		resumeMenuItem = new JMenuItem(new AbstractAction("Resume") {
 			public void actionPerformed(ActionEvent e) {
-				
+				onResume();
 			}
+
 		});
-		resumeMenuItem.setEnabled(false);
+		if(panel.getStateMachine().getExecutionState() != StateMachine.SUSPEND) {
+			resumeMenuItem.setEnabled(false);
+		}
 		
 		stopMenuItem = new JMenuItem(new AbstractAction("Stop") {
 			public void actionPerformed(ActionEvent e) {
-				
+				onStop();
 			}
+
 		});
-		stopMenuItem.setEnabled(false);
+		if(panel.getStateMachine().getExecutionState() != StateMachine.OPERATING) {
+			stopMenuItem.setEnabled(false);
+		}
 		
 		popupMenu.add(startMenuItem);
 		popupMenu.add(suspendMenuItem);
@@ -167,7 +182,40 @@ public class StateMachinePanelPopupMenu {
 
 		popupMenu.add(new JSeparator());
 		
-
+		JMenuItem addStartMenuItem = new JMenuItem(new AbstractAction("Add Start State") {
+			public void actionPerformed(ActionEvent e) {
+				State state = new StartState();
+				try {
+					state.setLocation(getLocation());
+					panel.getStateMachine().add(state);
+					panel.repaint();
+				} catch (InvalidStateNameException ex) {
+					JOptionPane.showMessageDialog(null, (Object)"Invalid State Name", "Exception", JOptionPane.OK_OPTION);
+				}
+			}
+		});
+		if(panel.getStateMachine().getState(StateMachineTagNames.START) != null) {
+			addStartMenuItem.setEnabled(false);
+		}
+		popupMenu.add(addStartMenuItem);
+		
+		JMenuItem addExitMenuItem = new JMenuItem(new AbstractAction("Add Exit State") {
+			public void actionPerformed(ActionEvent e) {
+				State state = new ExitState();
+				try {
+					state.setLocation(getLocation());
+					panel.getStateMachine().add(state);
+					panel.repaint();
+				} catch (InvalidStateNameException ex) {
+					JOptionPane.showMessageDialog(null, (Object)"Invalid State Name", "Exception", JOptionPane.OK_OPTION);
+				}
+			}
+		});
+		if(panel.getStateMachine().getState(StateMachineTagNames.EXIT) != null) {
+			addExitMenuItem.setEnabled(false);
+		}
+		popupMenu.add(addExitMenuItem);
+		
 		Set<String> kindSet = StateSettingDialogFactoryManager.getInstance().getKindList();
 		for(String kind : kindSet) {
 			JMenuItem addNewMenuItem = new JMenuItem(
@@ -238,5 +286,20 @@ public class StateMachinePanelPopupMenu {
 	public void onSaveAs() {
 		panel.showSaveFileDialog();
 	}
+	
+	private void onStart() {
+		panel.start();
+	}
+	
+	private void onSuspend() {
+		panel.suspend();
+	}
 
+	private void onStop() {
+		panel.stop();
+	}
+
+	private void onResume() {
+		panel.resume();
+	}
 }

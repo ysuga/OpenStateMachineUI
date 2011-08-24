@@ -72,4 +72,17 @@ public class DelayGuardSettingDialog extends AbstractGuardSettingDialog {
 		return new DelayGuard(getGuardName(), Integer.parseInt(delayField.getText()));
 	}
 
+	/**
+	 * <div lang="ja">
+	 * @param guard
+	 * </div>
+	 * <div lang="en">
+	 * @param guard
+	 * </div>
+	 */
+	@Override
+	public void setDefaultSetting(Guard guard) {
+		delayField.setText(Long.toString(((DelayGuard)guard).getInterval()));
+	}
+
 }

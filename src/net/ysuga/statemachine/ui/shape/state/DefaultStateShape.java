@@ -39,7 +39,8 @@ public class DefaultStateShape implements StateShape {
 	 * <div lang="ja"> コンストラクタ </div> <div lang="en"> Constructor </div>
 	 */
 	public DefaultStateShape(State state) {
-		box = new NamedRoundBox(state.getName(), state.getX(), state.getY(),
+		Point p = state.getLocation();
+		box = new NamedRoundBox(state.getName(), p.x, p.y,
 				boxwidth, boxheight);
 		this.state = state;
 	}
@@ -165,7 +166,7 @@ public class DefaultStateShape implements StateShape {
 				AbstractStateSettingDialog dialog = factory
 						.createStateSettingDialog(panel.getSelectedState());
 				if (dialog.doModal() == AbstractStateSettingDialog.OK_OPTION) {
-					State state = dialog.createState();
+					State state = dialog.buildState();
 					try {
 						panel.getStateMachine().replace(
 								panel.getSelectedState(), state);

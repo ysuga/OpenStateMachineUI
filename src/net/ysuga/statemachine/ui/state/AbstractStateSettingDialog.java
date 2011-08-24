@@ -2,6 +2,7 @@ package net.ysuga.statemachine.ui.state;
 
 import java.awt.Component;
 import java.awt.GridBagConstraints;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -10,9 +11,14 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import net.ysuga.statemachine.StateMachineTagNames;
+import net.ysuga.statemachine.state.ExitState;
+import net.ysuga.statemachine.state.StartState;
 import net.ysuga.statemachine.state.State;
+import net.ysuga.statemachine.state.action.StateActionList;
 import net.ysuga.statemachine.ui.shape.GridLayoutPanel;
 
 public abstract class AbstractStateSettingDialog extends JDialog {
@@ -21,6 +27,8 @@ public abstract class AbstractStateSettingDialog extends JDialog {
 
 	public static final int OK_OPTION = JOptionPane.OK_OPTION;
 
+	static int okCount;
+	
 	private int exitOption = CANCEL_OPTION;
 
 	private State state;
@@ -36,6 +44,30 @@ public abstract class AbstractStateSettingDialog extends JDialog {
 
 	private GridLayoutPanel contentPane;
 
+	private StateActionList onEntryStateActionList;
+	
+	final public StateActionList getOnEntryStateActionList() {
+		return onEntryStateActionList;
+	}
+
+	
+	private StateActionList onOperateStateActionList;
+
+	final public StateActionList getOnExitStateActionList() {
+		return onExitStateActionList;
+	}
+
+	
+	private StateActionList onExitStateActionList;
+
+	final public StateActionList getOnOperateStateActionList() {
+		return onOperateStateActionList;
+	}
+
+	
+	private JButton onEntrySettingButton;
+	private JButton onOperateSettingButton;
+	private JButton onExitSettingButton;
 	
 	/**
 	 * 
@@ -55,14 +87,21 @@ public abstract class AbstractStateSettingDialog extends JDialog {
 	 * </div>
 	 */
 	public AbstractStateSettingDialog(State state) {
-		super();
+		//super();
 		setTitle("StateSettingDialog");
 
 		this.state = state;
 		
-		String stateName = "";
+		String stateName = "state" + okCount;
 		if(state != null) {
 			stateName = state.getName();
+			onEntryStateActionList = state.getOnEntryActionList();
+			onOperateStateActionList = state.getOnOperateActionList();
+			onExitStateActionList = state.getOnExitActionList();
+		}  else {
+			onEntryStateActionList = new StateActionList();
+			onOperateStateActionList = new StateActionList();
+			onExitStateActionList = new StateActionList();
 		}
 		
 		stateNameField = new JTextField(20);
@@ -77,14 +116,46 @@ public abstract class AbstractStateSettingDialog extends JDialog {
 			stateNameField.setEditable(false);
 		}
 
-		initPanel();
-
-		setSize(450, 250);
-
-		pack();
+		onOperateSettingButton = new JButton(new AbstractAction("Setting") {
+			public void actionPerformed(ActionEvent e) {
+				onOperateSetting();
+			}
+		});
+		onEntrySettingButton = new JButton(new AbstractAction("Setting") {
+			public void actionPerformed(ActionEvent e) {
+				onEntrySetting();
+			}
+		});
+		onExitSettingButton = new JButton(new AbstractAction("Setting") {
+			public void actionPerformed(ActionEvent e) {
+				onExitSetting();
+			}
+		});
 	}
 
-	protected void initParameterPanel() {}
+	private void onEntrySetting() {
+		StateActionSettingDialog dialog = new StateActionSettingDialog(onEntryStateActionList);
+		if(dialog.doModal() == OK_OPTION) {
+			this.onEntryStateActionList = dialog.getStateActionList();
+		}
+	}
+	
+	private void onOperateSetting() {
+		StateActionSettingDialog dialog = new StateActionSettingDialog(onOperateStateActionList);
+		if(dialog.doModal() == OK_OPTION) {
+			this.onOperateStateActionList = dialog.getStateActionList();			
+		}
+	}
+	
+	private void onExitSetting() {
+		StateActionSettingDialog dialog = new StateActionSettingDialog(onExitStateActionList);
+		if(dialog.doModal() == OK_OPTION) {
+			this.onExitStateActionList = dialog.getStateActionList();			
+		}
+	}
+	
+	
+	protected void initParameterPanel(GridLayoutPanel parameterPanel) {}
 
 	int baseOffset;
 	int maxLine;
@@ -102,22 +173,41 @@ public abstract class AbstractStateSettingDialog extends JDialog {
 	 * @return void
 	 */
 	private void initPanel() {
-		contentPane = new GridLayoutPanel();
-		setContentPane(contentPane);
-
-		contentPane.addComponent(0, 0, 8, 2, new JLabel(
+		setContentPane(new JPanel());
+		getContentPane().setLayout(new GridLayout(3, 1));
+		GridLayoutPanel basicInputPanel = new GridLayoutPanel();
+		basicInputPanel.addComponent(0, 0, 8, 2, new JLabel(
 				"Input State Machine Condition"));
-		contentPane.addComponent(0, 2, 2, 1, new JLabel("State Name"));
-		contentPane.addComponent(GridBagConstraints.RELATIVE, 2, GridBagConstraints.REMAINDER, 1, stateNameField);
+		basicInputPanel.addComponent(0, 2, 2, 1, new JLabel("State Name"));
+		basicInputPanel.addComponent(GridBagConstraints.RELATIVE, 2, GridBagConstraints.REMAINDER, 1, stateNameField);
+		getContentPane().add(basicInputPanel);
+		
+		basicInputPanel.addComponent(0, 3, 7, 1, new JLabel("OnEntry"));
+		basicInputPanel.addComponent(4, 3, GridBagConstraints.REMAINDER, 1, onEntrySettingButton);
 
+		basicInputPanel.addComponent(0, 4, 7, 1, new JLabel("OnOperate"));
+		basicInputPanel.addComponent(4, 4, GridBagConstraints.REMAINDER, 1, onOperateSettingButton);
+
+		basicInputPanel.addComponent(0, 5, 7, 1, new JLabel("OnExit"));
+		basicInputPanel.addComponent(4, 5, GridBagConstraints.REMAINDER, 1, onExitSettingButton);
+		
+//		contentPane = new GridLayoutPanel();
+//		setContentPane(contentPane);
+
+
+		GridLayoutPanel parameterPanel = new GridLayoutPanel();
+		
 		int line = 0;
 		if (!this.stateNameField.getText().equals("start")
 				&& !this.stateNameField.getText().equals("exit")) {
 			baseOffset = 3;
-			initParameterPanel();
+			initParameterPanel(parameterPanel);
 		}
-
-		contentPane.addComponent(10, 3+maxLine, 3, 1, new JButton(
+		getContentPane().add(parameterPanel);
+		
+		GridLayoutPanel bottomPanel = new GridLayoutPanel();
+		
+		bottomPanel.addComponent(10, 0, 3, 1, new JButton(
 				new AbstractAction("Cancel") {
 					public void actionPerformed(ActionEvent arg0) {
 						exitOption = CANCEL_OPTION;
@@ -130,11 +220,19 @@ public abstract class AbstractStateSettingDialog extends JDialog {
 				onOk();
 			}
 		});
-		contentPane.addComponent(10, 4+maxLine, 3, 1, okButton);
+		bottomPanel.addComponent(10, 1, 3, 1, okButton);
 		okButton.setRequestFocusEnabled(true);
+		
+		getContentPane().add(bottomPanel);
 	}
 
 	public int doModal() {
+		initPanel();
+
+		setSize(450, 250);
+
+		pack();
+		
 		setModal(true);
 		setVisible(true);
 		return exitOption;
@@ -142,10 +240,23 @@ public abstract class AbstractStateSettingDialog extends JDialog {
 	
 	public void onOk() {
 		exitOption = OK_OPTION;
+		okCount++;
 		setVisible(false);
 	}
 	
 	
-	abstract public State createState();
+	abstract protected State createState();
 	
+	public State buildState() {
+		if(stateNameField.getText().equals(StateMachineTagNames.START)){
+			return new StartState();
+		} else if(stateNameField.getText().equals(StateMachineTagNames.EXIT)){
+			return new ExitState();
+		}
+		State state = createState();
+		state.getOnEntryActionList().addAll(getOnEntryStateActionList());
+		state.getOnOperateActionList().addAll(getOnOperateStateActionList());
+		state.getOnExitActionList().addAll(getOnExitStateActionList());
+		return state;
+	}
 }

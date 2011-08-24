@@ -17,7 +17,7 @@ import net.ysuga.statemachine.state.State;
  */
 public class DefaultStateSettingDialogFactory implements StateSettingDialogFactory {
 
-	String kind;
+	private String kind;
 	/**
 	 * <div lang="ja">
 	 * コンストラクタ

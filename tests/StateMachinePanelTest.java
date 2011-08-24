@@ -11,6 +11,8 @@ import net.ysuga.statemachine.state.DefaultState;
 import net.ysuga.statemachine.state.StartState;
 import net.ysuga.statemachine.state.State;
 import net.ysuga.statemachine.ui.StateMachinePanel;
+import net.ysuga.statemachine.ui.state.DefaultStateSettingDialogFactory;
+import net.ysuga.statemachine.ui.state.StateSettingDialogFactoryManager;
 
 /**
  * StateMachinePanelTest.java
@@ -25,37 +27,48 @@ import net.ysuga.statemachine.ui.StateMachinePanel;
  * @author ysuga
  * 
  */
-public class StateMachinePanelTest {
+public class StateMachinePanelTest  implements Runnable{
 
 	public StateMachinePanelTest() {
+
+		StateSettingDialogFactoryManager
+				.add(new DefaultStateSettingDialogFactory());
+		
 		new MainFrame();
+		Thread thread = new Thread(this);
+		thread.start();
 	}
 
+	StateMachinePanel stateMachinePanel;
+	
 	public class MainFrame extends JFrame {
 		public MainFrame() {
 			super("StateMachinePanelTest");
 
 			StateMachine stateMachine;
 			try {
-				stateMachine = new StateMachine("StateMachinePanelTest");
+
+				stateMachinePanel = new StateMachinePanel();
 				
-				State state1 = new DefaultState("state1");
-				state1.setLocation(new Point(100, 100));
+				stateMachine = stateMachinePanel.getStateMachine();
 				State start = new StartState();
+				start.setLocation(new Point(200, 100));
+				State state1 = new DefaultState("state1");
+				state1.setLocation(new Point(100, 200));
 				State state2 = new DefaultState("state2");
+				state2.setLocation(new Point(300, 200));
 				stateMachine.add(start);
 				stateMachine.add(state1);
 				stateMachine.add(state2);
 				
 				try {
-					start.connect("startConnection", state1, new DelayGuard("delay1", 500));
+					start.connect("startConnection", state1, new DelayGuard("delay1", 5000));
+					state1.connect("transition1", state2, new DelayGuard("delay2", 5000));
 				} catch (InvalidConnectionException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				
-				StateMachinePanel stateMachinePanel = new StateMachinePanel(
-						stateMachine);
 				getContentPane().add(stateMachinePanel);
 			} catch (ParserConfigurationException e) {
 				e.printStackTrace();
@@ -68,6 +81,18 @@ public class StateMachinePanelTest {
 			setSize(500, 500);
 			setVisible(true);
 
+		}
+	}
+	
+	public void run() {
+		while(true) {
+			stateMachinePanel.repaint();
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				// TODO é©ìÆê∂ê¨Ç≥ÇÍÇΩ catch ÉuÉçÉbÉN
+				e.printStackTrace();
+			}
 		}
 	}
 

@@ -40,8 +40,9 @@ public class DefaultStateSettingDialog extends AbstractStateSettingDialog {
 	 * </div>
 	 */
 	@Override
-	public State createState() {
-		return new DefaultState(getStateName());
+	protected State createState() {
+		DefaultState state = new DefaultState(getStateName());
+		return state;
 	}
 
 }

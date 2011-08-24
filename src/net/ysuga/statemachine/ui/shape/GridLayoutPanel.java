@@ -16,9 +16,9 @@ public class GridLayoutPanel extends JPanel {
 		super();
 		gridBag = new GridBagLayout();
 		constraints = new GridBagConstraints();
-		constraints.insets = new Insets(4, 4, 4, 4);
+		constraints.insets = new Insets(1, 1, 1, 1);
 		constraints.anchor = GridBagConstraints.WEST;
-		constraints.fill = GridBagConstraints.HORIZONTAL;
+		constraints.fill = GridBagConstraints.BOTH;
 		setLayout(gridBag);
 	}
 	

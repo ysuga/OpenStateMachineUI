@@ -16,10 +16,14 @@ import javax.swing.AbstractAction;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
+import javax.swing.JSeparator;
 
+import net.ysuga.statemachine.exception.InvalidConnectionException;
 import net.ysuga.statemachine.exception.InvalidStateNameException;
 import net.ysuga.statemachine.state.State;
+import net.ysuga.statemachine.state.StateCondition;
 import net.ysuga.statemachine.ui.StateMachinePanel;
+import net.ysuga.statemachine.ui.shape.TransitionSettingDialog;
 
 
 /**
@@ -32,6 +36,11 @@ public class StatePopupMenu {
 	
 	private StateMachinePanel panel;
 	
+	
+	private JMenuItem setInitialActiveMenuItem;
+
+	private JMenuItem setInitialInactiveMenuItem;
+	
 	/**
 	 * <div lang="ja">
 	 * コンストラクタ
@@ -42,7 +51,6 @@ public class StatePopupMenu {
 	 */
 	public StatePopupMenu(final StateMachinePanel panel) {
 		this.panel = panel;
-		
 	}
 	
 	/**
@@ -64,8 +72,9 @@ public class StatePopupMenu {
 						if(factory != null) {
 							AbstractStateSettingDialog dialog = factory.createStateSettingDialog(panel.getSelectedState()); 
 							if( dialog.doModal() == AbstractStateSettingDialog.OK_OPTION ) {
-								State state = dialog.createState();
+								State state = dialog.buildState();
 								try {
+									
 									panel.getStateMachine().replace(panel.getSelectedState(), state);
 									panel.setSelectedState(state);
 									panel.repaint();
@@ -86,6 +95,38 @@ public class StatePopupMenu {
 				});
 		popupMenu.add(deleteMenuItem);
 		
+		popupMenu.add(new JSeparator());
+		
+		setInitialActiveMenuItem = new JMenuItem(new AbstractAction("Set Initial State Active") {
+			public void actionPerformed(ActionEvent e) {
+				panel.getSelectedState().setInitialStateCondition(StateCondition.ACTIVE);
+				panel.repaint();
+			}
+		});
+		popupMenu.add(setInitialActiveMenuItem);
+		setInitialInactiveMenuItem = new JMenuItem(new AbstractAction("Set Initial State Inactive") {
+			public void actionPerformed(ActionEvent e) {
+				panel.getSelectedState().setInitialStateCondition(StateCondition.INACTIVE);
+				panel.repaint();
+			}
+		});
+		popupMenu.add(setInitialInactiveMenuItem);
+		if(panel.getSelectedState().getInitialStateCondition().equals(StateCondition.ACTIVE)) {
+			setInitialActiveMenuItem.setEnabled(false);
+		} else {
+			setInitialInactiveMenuItem.setEnabled(false);
+		}
+		
+		popupMenu.add(new JSeparator());
+		
+		JMenuItem addTransitionMenuItem = new JMenuItem(
+				new AbstractAction("Add Transition") {
+					public void actionPerformed(ActionEvent e) {
+						onAddTransition();
+					}
+				});
+		popupMenu.add(addTransitionMenuItem);
+		
 		popupMenu.show(component, point.x, point.y);
 	}
 
@@ -105,7 +146,21 @@ public class StatePopupMenu {
 	}	
 
 
-	
+	private void onAddTransition() {
+		TransitionSettingDialog dialog =  new TransitionSettingDialog(panel); 
+		dialog.setSourceStateName(panel.getSelectedState().getName());
+		if( dialog.doModal() == AbstractStateSettingDialog.OK_OPTION ) {
+			try {
+				dialog.createTransition();
+			} catch (InvalidConnectionException e) {
+				// TODO 自動生成された catch ブロック
+				e.printStackTrace();
+				Object obj = "InvalidConnectionException";
+				JOptionPane.showMessageDialog(panel, obj);
+			}
+			panel.repaint();
+		}
+	}
 	
 
 }

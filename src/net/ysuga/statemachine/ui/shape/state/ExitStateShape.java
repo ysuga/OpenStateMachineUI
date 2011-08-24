@@ -8,10 +8,14 @@
  */
 package net.ysuga.statemachine.ui.shape.state;
 
+import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.Shape;
 import java.awt.event.MouseEvent;
+import java.awt.geom.Ellipse2D;
+import java.util.ArrayList;
 
 import net.ysuga.statemachine.state.State;
 import net.ysuga.statemachine.ui.StateMachinePanel;
@@ -21,10 +25,36 @@ import net.ysuga.statemachine.ui.shape.base.NamedCircle;
  * @author ysuga
  *
  */
-public class StartStateShape implements StateShape {
+public class ExitStateShape implements StateShape {
 
-	private NamedCircle namedCircle;
+	private NamedDoubleCircle namedCircle;
 	
+	public class NamedDoubleCircle extends NamedCircle {
+		private Ellipse2D smallEllipse;
+		
+		public NamedDoubleCircle(String name, int x, int y, Double radius) { 
+			super(name, x, y , radius);
+			radius = radius*0.8;
+			smallEllipse = new Ellipse2D.Double(x-radius, y - radius, radius * 2, radius * 2);
+			
+		}
+		
+		@Override
+		public void draw(Graphics2D g) {
+			g.draw(getEllipse());
+			g.fill(smallEllipse);
+			
+			g.drawGlyphVector(getGlyphVector(), getBounds().x, getBounds().y);
+			
+			
+			if (isSelected()) {
+				ArrayList<Shape> selectedShapeList = getSelectedShapeList();
+				for (Shape selectedShape : selectedShapeList) {
+					g.draw(selectedShape);
+				}
+			}
+		}
+	}
 	private State state;
 	
 	@Override
@@ -48,9 +78,9 @@ public class StartStateShape implements StateShape {
 	 * @param radius
 	 * </div>
 	 */
-	public StartStateShape(State state) {
+	public ExitStateShape(State state) {
 		Point p = state.getLocation();
-		namedCircle = new NamedCircle(state.getName(), p.x+10, p.y+10, 10.0);
+		namedCircle = new NamedDoubleCircle(state.getName(), p.x+10, p.y+10, 10.0);
 		this.state = state;
 	}
 

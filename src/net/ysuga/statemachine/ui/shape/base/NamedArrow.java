@@ -89,6 +89,7 @@ public class NamedArrow {
 	
 	
 	private ArrayList<Shape> selectedShapeList;
+	
 	public ArrayList<Shape> getSelectedShapeList() {
 		return selectedShapeList;
 	}

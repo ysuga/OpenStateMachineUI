@@ -242,7 +242,7 @@ public class StateMachinePanelMouseAdapter implements MouseListener,
 			int y = arg0.getPoint().y - getSelectOffset().y;
 			if(x < 0) x = 0;
 			if(y < 0) y = 0;
-			panel.getSelectedState().setLocation(x,y);
+			panel.getSelectedState().setLocation(new Point(x,y));
 		}
 
 		// for(TransitionShape transitionShape :

@@ -12,6 +12,7 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 
+import net.ysuga.statemachine.StateMachine;
 import net.ysuga.statemachine.state.State;
 import net.ysuga.statemachine.state.StateCondition;
 import net.ysuga.statemachine.transition.Transition;
@@ -43,6 +44,7 @@ public class StateMachineShape {
 	}
 	
 	public TransitionShapeList transitionShapeList;
+	private StateMachine stateMachine;
 	/**
 	 * <div lang="ja">
 	 * コンストラクタ
@@ -60,9 +62,11 @@ public class StateMachineShape {
 	public void draw(Graphics g) {
 		for(ModelShape stateShape : stateShapeList) {
 			Color oldColor = g.getColor();
-			if(stateShape.getOwnerState().getStateCondition().equals(StateCondition.ACTIVE)) {
+			if(stateMachine.getExecutionState() == StateMachine.HALT && stateShape.getOwnerState().getInitialStateCondition().equals(StateCondition.ACTIVE)) {
+				g.setColor(Color.orange);
+			} else if(stateMachine.getExecutionState() != StateMachine.HALT && stateShape.getOwnerState().getStateCondition().equals(StateCondition.ACTIVE)) {
 				g.setColor(Color.red);
-			}
+			} 
 			
 			stateShape.draw((Graphics2D)g);
 			g.setColor(oldColor);
@@ -75,9 +79,11 @@ public class StateMachineShape {
 		ModelShape stateShape = getSelectedShape();
 		if(stateShape != null) {
 			Color oldColor = g.getColor();
-			if(stateShape.getOwnerState().getStateCondition().equals(StateCondition.ACTIVE)) {
+			if(stateMachine.getExecutionState() == StateMachine.HALT && stateShape.getOwnerState().getInitialStateCondition().equals(StateCondition.ACTIVE)) {
+				g.setColor(Color.orange);
+			} else if(stateMachine.getExecutionState() != StateMachine.HALT && stateShape.getOwnerState().getStateCondition().equals(StateCondition.ACTIVE)) {
 				g.setColor(Color.red);
-			}
+			} 
 			
 			stateShape.draw((Graphics2D)g);
 			
@@ -172,6 +178,22 @@ public class StateMachineShape {
 				transitionShape.setSelected(true);
 			}
 		}
+	}
+
+
+	/**
+	 * setStateMachine
+	 * <div lang="ja">
+	 * 
+	 * @param stateMachine
+	 * </div>
+	 * <div lang="en">
+	 *
+	 * @param stateMachine
+	 * </div>
+	 */
+	public void setStateMachine(StateMachine stateMachine) {
+		this.stateMachine = stateMachine;
 	}
 
 

@@ -25,9 +25,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 
-import org.xml.sax.SAXException;
-
 import net.ysuga.statemachine.StateMachine;
+import net.ysuga.statemachine.StateMachineExecutionThread;
 import net.ysuga.statemachine.exception.InvalidFSMFileException;
 import net.ysuga.statemachine.state.State;
 import net.ysuga.statemachine.transition.Transition;
@@ -36,13 +35,14 @@ import net.ysuga.statemachine.ui.guard.DelayGuardSettingDialogFactory;
 import net.ysuga.statemachine.ui.guard.ExorGuardSettingDialogFactory;
 import net.ysuga.statemachine.ui.guard.GuardSettingDialogFactoryManager;
 import net.ysuga.statemachine.ui.guard.NotGuardSettingDialogFactory;
+import net.ysuga.statemachine.ui.guard.NullGuardSettingDialogFactory;
 import net.ysuga.statemachine.ui.guard.OrGuardSettingDialogFactory;
 import net.ysuga.statemachine.ui.shape.StateMachineShape;
 import net.ysuga.statemachine.ui.shape.StateMachineShapeBuilder;
 import net.ysuga.statemachine.ui.shape.TransitionPopupMenu;
-import net.ysuga.statemachine.ui.state.DefaultStateSettingDialogFactory;
 import net.ysuga.statemachine.ui.state.StatePopupMenu;
-import net.ysuga.statemachine.ui.state.StateSettingDialogFactoryManager;
+
+import org.xml.sax.SAXException;
 
 /**
  * 
@@ -56,6 +56,20 @@ import net.ysuga.statemachine.ui.state.StateSettingDialogFactoryManager;
  */
 public class StateMachinePanel extends JPanel {
 
+	public final static int EDIT_NORMAL = 0;
+	public final static int EDIT_TRANSITION = 1;
+	
+	public int editMode = EDIT_NORMAL;
+	
+	public int getEditMode() {
+		return editMode;
+	}
+	
+	public void setEditMode(int mode) {
+		editMode = mode;
+	}
+	
+	
 	/**
 	 * File Extention of FSM
 	 */
@@ -65,6 +79,8 @@ public class StateMachinePanel extends JPanel {
 	 * StateMachine class object.
 	 */
 	private StateMachine stateMachine;
+	
+	private StateMachineExecutionThread stateMachineExecutionThread;
 
 	/**
 	 * 
@@ -190,9 +206,10 @@ public class StateMachinePanel extends JPanel {
 	 *            </div> <div lang="en"> Constructor
 	 * @param stateMachine
 	 *            </div>
+	 * @throws ParserConfigurationException 
 	 */
-	public StateMachinePanel(StateMachine stateMachine) {
-		this.stateMachine = stateMachine;
+	public StateMachinePanel() throws ParserConfigurationException {
+		this.stateMachine = createStateMachine("new state machine");
 		this.stateMachineShape = StateMachineShapeBuilder
 				.buildStateMachineShape(stateMachine);
 
@@ -201,8 +218,6 @@ public class StateMachinePanel extends JPanel {
 		super.addMouseListener(adapter);
 		super.addMouseMotionListener(adapter);
 
-		StateSettingDialogFactoryManager
-				.add(new DefaultStateSettingDialogFactory());
 
 		this.statePopupMenu = new StatePopupMenu(this);
 		this.transitionPopupMenu = new TransitionPopupMenu(this);
@@ -218,6 +233,8 @@ public class StateMachinePanel extends JPanel {
 
 		GuardSettingDialogFactoryManager
 				.add(new DelayGuardSettingDialogFactory());
+		GuardSettingDialogFactoryManager
+			.add(new NullGuardSettingDialogFactory());
 	}
 
 	/**
@@ -303,7 +320,7 @@ public class StateMachinePanel extends JPanel {
 
 		StateMachine oldStateMachine = this.stateMachine;
 		try {
-			this.stateMachine = new StateMachine(file);
+			this.stateMachine = createStateMachine(file);
 		} catch (InvalidFSMFileException e) {
 			JOptionPane.showMessageDialog(this, "Invalid FSM file.");
 			this.stateMachine = oldStateMachine;
@@ -375,7 +392,7 @@ public class StateMachinePanel extends JPanel {
 			String name = JOptionPane.showInputDialog(this,
 					"Input New State Machine Name");
 			if (name != null) {
-				stateMachine = new StateMachine("new state machine");
+				stateMachine = createStateMachine("new state machine");
 			} else {
 				JOptionPane.showMessageDialog(this,
 						"Creating New State Machine is canceled.");
@@ -387,4 +404,80 @@ public class StateMachinePanel extends JPanel {
 		repaint();
 	}
 
+	/**
+	 * createStateMachine
+	 * <div lang="ja">
+	 * 
+	 * @param string
+	 * @return
+	 * </div>
+	 * <div lang="en">
+	 *
+	 * @param string
+	 * @return
+	 * </div>
+	 * @throws ParserConfigurationException 
+	 */
+	public StateMachine createStateMachine(String string) throws ParserConfigurationException {
+		return new StateMachine(string);
+	}
+
+	public StateMachine createStateMachine(File file) throws InvalidFSMFileException, ParserConfigurationException, SAXException, IOException {
+		return new StateMachine(file);
+	}
+
+	/**
+	 * start
+	 * <div lang="ja">
+	 * 
+	 * </div>
+	 * <div lang="en">
+	 *
+	 * </div>
+	 */
+	public void start() {
+		stateMachineExecutionThread = new StateMachineExecutionThread(stateMachine);
+		stateMachineExecutionThread.startExecution();
+	}
+
+	/**
+	 * stop
+	 * <div lang="ja">
+	 * 
+	 * </div>
+	 * <div lang="en">
+	 *
+	 * </div>
+	 */
+	public void stop() {
+		stateMachineExecutionThread.stopExecution();
+		stateMachineExecutionThread = null;
+		stateMachine.reset();
+	}
+	/**
+	 * suspend
+	 * <div lang="ja">
+	 * 
+	 * </div>
+	 * <div lang="en">
+	 *
+	 * </div>
+	 */
+	public void suspend() {
+		stateMachineExecutionThread.suspendExecution();
+	}
+
+
+	/**
+	 * resume
+	 * <div lang="ja">
+	 * 
+	 * </div>
+	 * <div lang="en">
+	 *
+	 * </div>
+	 */
+	public void resume() {
+		stateMachineExecutionThread.resumeExecution();
+	}
 }

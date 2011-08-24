@@ -132,6 +132,10 @@ public class PivottedNamedArrow {
 			g.drawLine(oldPoint.x, oldPoint.y, p.x, p.y);
 			oldPoint = p;
 		}
+		
+		if(this.isSelected()) {
+			
+		}
 		namedArrow.draw(g);
 	}
 

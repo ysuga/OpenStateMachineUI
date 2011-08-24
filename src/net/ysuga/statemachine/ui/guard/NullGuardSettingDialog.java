@@ -68,4 +68,18 @@ public class NullGuardSettingDialog extends AbstractGuardSettingDialog {
 		return new NullGuard(getGuardName());
 	}
 
+	/**
+	 * <div lang="ja">
+	 * @param guard
+	 * </div>
+	 * <div lang="en">
+	 * @param guard
+	 * </div>
+	 */
+	@Override
+	public void setDefaultSetting(Guard guard) {
+		// TODO 自動生成されたメソッド・スタブ
+		
+	}
+
 }

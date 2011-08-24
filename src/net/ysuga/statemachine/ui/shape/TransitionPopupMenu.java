@@ -18,12 +18,9 @@ import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 
 import net.ysuga.statemachine.exception.InvalidConnectionException;
-import net.ysuga.statemachine.exception.InvalidStateNameException;
-import net.ysuga.statemachine.state.State;
+import net.ysuga.statemachine.transition.Transition;
 import net.ysuga.statemachine.ui.StateMachinePanel;
 import net.ysuga.statemachine.ui.state.AbstractStateSettingDialog;
-import net.ysuga.statemachine.ui.state.StateSettingDialogFactory;
-import net.ysuga.statemachine.ui.state.StateSettingDialogFactoryManager;
 
 
 /**
@@ -67,6 +64,11 @@ public class TransitionPopupMenu {
 						TransitionSettingDialog dialog =  new TransitionSettingDialog(panel, panel.getSelectedTransition()); 
 						if( dialog.doModal() == AbstractStateSettingDialog.OK_OPTION ) {
 							try {
+								Transition transition = panel.getSelectedTransition();
+								//if (this.transition != null) {
+									transition.getSourceState().removeTransition(transition.getName());
+								//}
+								
 								dialog.createTransition();
 							} catch (InvalidConnectionException e) {
 								// TODO é©ìÆê∂ê¨Ç≥ÇÍÇΩ catch ÉuÉçÉbÉN
@@ -102,7 +104,8 @@ public class TransitionPopupMenu {
 	 * </div>
 	 */
 	private void onDelete() {
-		// TODO:
+		Transition transition = panel.getSelectedTransition();
+		transition.getSourceState().removeTransition(transition.getName());
 		panel.repaint();
 	}	
 

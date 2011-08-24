@@ -19,6 +19,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
 import net.ysuga.statemachine.exception.InvalidGuardException;
+import net.ysuga.statemachine.guard.AbstractLogicGuard;
 import net.ysuga.statemachine.guard.Guard;
 import net.ysuga.statemachine.guard.GuardFactoryManager;
 import net.ysuga.statemachine.ui.shape.GridLayoutPanel;
@@ -34,6 +35,8 @@ public abstract class AbstractLogicGuardSettingDialog extends AbstractGuardSetti
 	JComboBox[] guardKindComboBox;
 	JButton[] guardSettingButton;
 	Guard[] childGuards;
+	AbstractLogicGuard defaultGuard;
+
 	
 	public Guard[] getChildGuards() {
 		return childGuards;
@@ -56,6 +59,9 @@ public abstract class AbstractLogicGuardSettingDialog extends AbstractGuardSetti
 				JOptionPane.showMessageDialog(getTransitionSettingDialog().getStateMachinePanel(), "Guard Kind(" + guardKindComboBox[index].getSelectedItem() + ") is not properly registered");
 			}
 			AbstractGuardSettingDialog guardSettingDialog = factory.createGuardSettingDialog(getTransitionSettingDialog());
+			if(defaultGuard != null) {
+				guardSettingDialog.setDefaultSetting(defaultGuard.getChildGuards()[index]);
+			}
 			if(guardSettingDialog.doModal() == AbstractGuardSettingDialog.OK_OPTION) {
 				
 				try {
@@ -138,6 +144,13 @@ public abstract class AbstractLogicGuardSettingDialog extends AbstractGuardSetti
 		getOKButton().setEnabled(false);
 		
 		pack();
+	}
+	
+	@Override
+	public void setDefaultSetting(Guard guard) {
+		defaultGuard = (AbstractLogicGuard)guard;
+	//	int numGuard = getNumChildGuard();
+	//	Guard[] childGuards = logicGuard.getChildGuards();
 	}
 
 }
