@@ -82,7 +82,7 @@ public class NamedRoundBox extends RoundRectangle2D.Double {
 
 	public void draw(Graphics2D g) {
 		Color colorbuf = g.getColor();
-		g.setColor(Color.white);
+		g.setColor(new Color(255,255,220));
 		g.fill(this);
 		g.setColor(colorbuf);
 		g.draw(this);

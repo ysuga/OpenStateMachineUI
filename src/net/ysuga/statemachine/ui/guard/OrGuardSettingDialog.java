@@ -63,4 +63,16 @@ public class OrGuardSettingDialog extends AbstractLogicGuardSettingDialog {
 		return new OrGuard(getGuardName(), getChildGuards());
 	}
 
+	/**
+	 * <div lang="ja">
+	 * @return
+	 * </div>
+	 * <div lang="en">
+	 * @return
+	 * </div>
+	 */
+	@Override
+	public String getKind() {
+		return StateMachineTagNames.OR;
+	}
 }

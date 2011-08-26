@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -85,8 +86,61 @@ public class TransitionSettingDialog extends JDialog {
 	 * @param panel
 	 * </div>
 	 */
-	public TransitionSettingDialog(StateMachinePanel panel) {
+	private TransitionSettingDialog(StateMachinePanel panel) {
 		super();
+
+	}
+
+	private void onGuardSettingButtonPressed() {
+		String kind = (String) guardKindComboBox.getSelectedItem();
+		GuardSettingDialogFactory factory = GuardSettingDialogFactoryManager
+				.getInstance()
+				.get(kind);
+		if (factory == null) {
+			JOptionPane.showMessageDialog(panel, "Guard Kind(" + guardKindComboBox.getSelectedItem() + ") is not properly registered");
+			return;
+		}
+		AbstractGuardSettingDialog guardSettingDialog = factory.createGuardSettingDialog(this);
+		if(transition != null) {
+			try {
+				guardSettingDialog.setGuardName(transition.getGuard().getName());
+				guardSettingDialog.setDefaultSetting(transition.getGuard());
+			} catch (ClassCastException e) {
+				
+			}
+		}
+		if(guardSettingDialog.doModal() == AbstractGuardSettingDialog.OK_OPTION) {
+			try {
+				guard = guardSettingDialog.createGuard();
+			} catch (InvalidGuardException e) {
+				// TODO 自動生成された catch ブロック
+				e.printStackTrace();
+				return;
+			}
+			okButton.setEnabled(true);
+		}
+	}
+
+	private boolean onGuardKindChanged(boolean initFlag) {
+		okButton.setEnabled(false);
+		if(!initFlag) {
+			initFlag = true;
+		} else {
+			transition = null;
+		}
+		return initFlag;
+	}
+	/**
+	 * @param loader
+	 * @param arg0
+	 * @throws IOException
+	 * @throws SAXException
+	 * @throws ParserConfigurationException
+	 */
+	public TransitionSettingDialog(StateMachinePanel panel,
+			Transition transition) {
+		this(panel);
+		
 		this.panel = panel;
 
 		parentContentPane = (JPanel) this.getContentPane();
@@ -123,12 +177,7 @@ public class TransitionSettingDialog extends JDialog {
 		guardKindComboBox.addActionListener(new ActionListener() {
 			private boolean initFlag;
 			public void actionPerformed(ActionEvent e) {
-				okButton.setEnabled(false);
-				if(!initFlag) {
-					initFlag = true;
-				} else {
-					transition = null;
-				}
+				initFlag = onGuardKindChanged(initFlag);
 			}
 		});
 
@@ -137,57 +186,30 @@ public class TransitionSettingDialog extends JDialog {
 				onGuardSettingButtonPressed();
 			}
 		});
-	}
-
-	private void onGuardSettingButtonPressed() {
-		String kind = (String) guardKindComboBox.getSelectedItem();
-		GuardSettingDialogFactory factory = GuardSettingDialogFactoryManager
-				.getInstance()
-				.get(kind);
-		if (factory == null) {
-			JOptionPane.showMessageDialog(panel, "Guard Kind(" + guardKindComboBox.getSelectedItem() + ") is not properly registered");
-		}
-		AbstractGuardSettingDialog guardSettingDialog = factory.createGuardSettingDialog(this);
+		
 		if(transition != null) {
-			try {
-				guardSettingDialog.setGuardName(transition.getGuard().getName());
-				guardSettingDialog.setDefaultSetting(transition.getGuard());
-			} catch (ClassCastException e) {
-				
+			this.transition = transition;
+			this.sourceState = transition.getSourceState();
+			// this.targetState = transition.getTargetState();
+			transitionNameField.setText(transition.getName());
+	
+			fromNameComboBox.setSelectedItem(transition.getSourceState().getName());
+			toNameComboBox.setSelectedItem(transition.getTargetState().getName());
+	
+			guardKindComboBox.setSelectedItem(transition.getGuard().getKind());
+		} else {
+			int counter = 0;
+			this.sourceState = panel.getSelectedState();
+			String transitionName = "";
+			while(true) {
+				transitionName = "transition"+counter;
+				if(sourceState.getTransition(transitionName) == null) {
+					break;
+				}
+				counter++;
 			}
+			transitionNameField.setText(transitionName);
 		}
-		if(guardSettingDialog.doModal() == AbstractGuardSettingDialog.OK_OPTION) {
-			try {
-				guard = guardSettingDialog.createGuard();
-			} catch (InvalidGuardException e) {
-				// TODO 自動生成された catch ブロック
-				e.printStackTrace();
-				return;
-			}
-			okButton.setEnabled(true);
-		}
-	}
-
-	/**
-	 * @param loader
-	 * @param arg0
-	 * @throws IOException
-	 * @throws SAXException
-	 * @throws ParserConfigurationException
-	 */
-	public TransitionSettingDialog(StateMachinePanel panel,
-			Transition transition) {
-		this(panel);
-		this.transition = transition;
-		this.sourceState = transition.getSourceState();
-		// this.targetState = transition.getTargetState();
-		transitionNameField.setText(transition.getName());
-
-		fromNameComboBox.setSelectedItem(transition.getSourceState().getName());
-		toNameComboBox.setSelectedItem(transition.getTargetState().getName());
-
-		guardKindComboBox.setSelectedItem(transition.getGuard().getKind());
-
 	}
 
 	int maxLine = 3;
@@ -293,5 +315,36 @@ public class TransitionSettingDialog extends JDialog {
 	 */
 	public void setSourceStateName(String name) {
 		this.fromNameComboBox.setSelectedItem(name);
+	}
+
+	/**
+	 * setTargetStateName
+	 * <div lang="ja">
+	 * 
+	 * @param name
+	 * </div>
+	 * <div lang="en">
+	 *
+	 * @param name
+	 * </div>
+	 */
+	public void setTargetStateName(String name) {
+		this.toNameComboBox.setSelectedItem(name);
+	}
+
+	/**
+	 * getSourceState
+	 * <div lang="ja">
+	 * 
+	 * @return
+	 * </div>
+	 * <div lang="en">
+	 *
+	 * @return
+	 * </div>
+	 */
+	public State getSourceState() {
+		return sourceState;
+//		return panel.getSelectedState();
 	}
 }

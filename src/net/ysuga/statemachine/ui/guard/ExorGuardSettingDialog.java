@@ -63,4 +63,16 @@ public class ExorGuardSettingDialog extends AbstractLogicGuardSettingDialog {
 		return new ExorGuard(getGuardName(), getChildGuards());
 	}
 
+	/**
+	 * <div lang="ja">
+	 * @return
+	 * </div>
+	 * <div lang="en">
+	 * @return
+	 * </div>
+	 */
+	@Override
+	public String getKind() {
+		return StateMachineTagNames.EXOR;
+	}
 }

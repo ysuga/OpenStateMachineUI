@@ -25,6 +25,7 @@ import javax.swing.JScrollPane;
 import net.ysuga.statemachine.state.action.StateAction;
 import net.ysuga.statemachine.state.action.StateActionFactoryManager;
 import net.ysuga.statemachine.state.action.StateActionList;
+import net.ysuga.statemachine.ui.ParameterMapSettingDialog;
 import net.ysuga.statemachine.ui.shape.GridLayoutPanel;
 import net.ysuga.statemachine.util.ParameterMap;
 
@@ -49,10 +50,11 @@ public class StateActionSettingDialog extends JDialog {
 	public StateActionList getStateActionList() {
 		return stateActionList;
 	}
-	
+
 	private int exitOption = CANCEL_OPTION;
 
 	private JList actionList;
+	
 
 	public StateActionSettingDialog(StateActionList stateActionList) {
 		super();
@@ -79,7 +81,7 @@ public class StateActionSettingDialog extends JDialog {
 		actionList.setVisibleRowCount(0);
 		// actionList.setLayoutOrientation(JList.HORIZONTAL_WRAP);
 		actionList.setFixedCellWidth(60);
-		actionList.setFixedCellHeight(40);
+		actionList.setFixedCellHeight(20);
 
 		JScrollPane scrollPane = new JScrollPane(actionList);
 		scrollPane
@@ -139,7 +141,7 @@ public class StateActionSettingDialog extends JDialog {
 		private int exitOption = CANCEL_OPTION;
 
 		private JComboBox stateActionComboBox;
-		
+
 		private ParameterMap parameterMap;
 
 		public StateActionAddingDialog() {
@@ -160,15 +162,26 @@ public class StateActionSettingDialog extends JDialog {
 			}
 
 			contentPane.addComponent(0, 1, 10, 10, 8, 1, stateActionComboBox);
-			contentPane.addComponent(8, 1, 0, 0, 1, 1, new JButton(new AbstractAction("Setting") {
-				public void actionPerformed(ActionEvent e) {
-					JOptionPane.showMessageDialog(null, "Creating StateAction("+(String) stateActionComboBox.getSelectedItem()+")");
-					StateAction sa = StateActionFactoryManager.getInstance()
-					.get((String) stateActionComboBox.getSelectedItem())
-					.createStateAction();
-					ParameterMap pm = sa.getParameterMap();
-				}
-			}));
+			contentPane.addComponent(8, 1, 0, 0, 1, 1, new JButton(
+					new AbstractAction("Setting") {
+						public void actionPerformed(ActionEvent e) {
+							/**JOptionPane.showMessageDialog(
+									null,
+									"Creating StateAction("
+											+ (String) stateActionComboBox
+													.getSelectedItem() + ")");**/
+							StateAction sa = StateActionFactoryManager
+									.getInstance()
+									.get((String) stateActionComboBox
+											.getSelectedItem())
+									.createStateAction();
+							ParameterMap pm = sa.getParameterMap();
+							ParameterMapSettingDialog dialog = new ParameterMapSettingDialog(pm);
+							if(dialog.doModal() == JOptionPane.OK_OPTION) {
+								parameterMap = dialog.createParameterMap(); 
+							}
+						}
+					}));
 			contentPane.addComponent(9, 1, 0, 0, 1, 1, new JButton(
 					new AbstractAction("OK") {
 						public void actionPerformed(ActionEvent e) {
@@ -193,20 +206,22 @@ public class StateActionSettingDialog extends JDialog {
 		}
 
 		public StateAction createStateAction() {
-			return StateActionFactoryManager.getInstance()
+			StateAction sa = StateActionFactoryManager.getInstance()
 					.get((String) stateActionComboBox.getSelectedItem())
 					.createStateAction();
+			if(parameterMap != null) {
+				sa.setParameterMap(parameterMap);
+			}
+			return sa;
 		}
 	};
 
 	/**
 	 * 
-	 * onOk
-	 * <div lang="ja">
+	 * onOk <div lang="ja">
 	 * 
-	 * </div>
-	 * <div lang="en">
-	 *
+	 * </div> <div lang="en">
+	 * 
 	 * </div>
 	 */
 	public void onOk() {
@@ -216,12 +231,10 @@ public class StateActionSettingDialog extends JDialog {
 
 	/**
 	 * 
-	 * onCancel
-	 * <div lang="ja">
+	 * onCancel <div lang="ja">
 	 * 
-	 * </div>
-	 * <div lang="en">
-	 *
+	 * </div> <div lang="en">
+	 * 
 	 * </div>
 	 */
 	public void onCancel() {
@@ -230,12 +243,10 @@ public class StateActionSettingDialog extends JDialog {
 
 	/**
 	 * 
-	 * onAdd
-	 * <div lang="ja">
+	 * onAdd <div lang="ja">
 	 * 
-	 * </div>
-	 * <div lang="en">
-	 *
+	 * </div> <div lang="en">
+	 * 
 	 * </div>
 	 */
 	public void onAdd() {
@@ -250,7 +261,7 @@ public class StateActionSettingDialog extends JDialog {
 
 	public void onRemove() {
 		int index = actionList.getSelectedIndex();
-		if(index >= 0) {
+		if (index >= 0) {
 			stateActionList.remove(index);
 		}
 		initPanel();
@@ -259,7 +270,7 @@ public class StateActionSettingDialog extends JDialog {
 
 	public void onUp() {
 		int index = actionList.getSelectedIndex();
-		if (index > 0 ) {
+		if (index > 0) {
 			StateAction action = stateActionList.remove(index);
 			if (action != null) {
 				stateActionList.add(index - 1, action);

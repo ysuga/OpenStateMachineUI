@@ -9,6 +9,7 @@
 package net.ysuga.statemachine.ui.state;
 
 import net.ysuga.statemachine.state.State;
+import net.ysuga.statemachine.ui.StateMachinePanel;
 
 /**
  * @author ysuga
@@ -17,5 +18,5 @@ import net.ysuga.statemachine.state.State;
 public interface StateSettingDialogFactory {
 
 	public String getKind();
-	public AbstractStateSettingDialog createStateSettingDialog(State state);
+	public AbstractStateSettingDialog createStateSettingDialog(StateMachinePanel panel, State state);
 }

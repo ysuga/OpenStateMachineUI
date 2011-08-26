@@ -14,11 +14,13 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import net.ysuga.statemachine.StateMachine;
 import net.ysuga.statemachine.StateMachineTagNames;
 import net.ysuga.statemachine.state.ExitState;
 import net.ysuga.statemachine.state.StartState;
 import net.ysuga.statemachine.state.State;
 import net.ysuga.statemachine.state.action.StateActionList;
+import net.ysuga.statemachine.ui.StateMachinePanel;
 import net.ysuga.statemachine.ui.shape.GridLayoutPanel;
 
 public abstract class AbstractStateSettingDialog extends JDialog {
@@ -86,19 +88,28 @@ public abstract class AbstractStateSettingDialog extends JDialog {
 	 * @param state
 	 * </div>
 	 */
-	public AbstractStateSettingDialog(State state) {
+	public AbstractStateSettingDialog(StateMachinePanel panel, State state) {
 		//super();
 		setTitle("StateSettingDialog");
 
 		this.state = state;
 		
-		String stateName = "state" + okCount;
+		String stateName = "";
 		if(state != null) {
 			stateName = state.getName();
 			onEntryStateActionList = state.getOnEntryActionList();
 			onOperateStateActionList = state.getOnOperateActionList();
 			onExitStateActionList = state.getOnExitActionList();
 		}  else {
+			int counter = 0;
+			StateMachine stateMachine = panel.getStateMachine();
+			while(true) {
+				stateName = "state" + counter;
+				if(stateMachine.getState(stateName) == null) {
+					break;
+				}
+				counter++;
+			}
 			onEntryStateActionList = new StateActionList();
 			onOperateStateActionList = new StateActionList();
 			onExitStateActionList = new StateActionList();
@@ -182,6 +193,8 @@ public abstract class AbstractStateSettingDialog extends JDialog {
 		basicInputPanel.addComponent(GridBagConstraints.RELATIVE, 2, GridBagConstraints.REMAINDER, 1, stateNameField);
 		getContentPane().add(basicInputPanel);
 		
+		// Setting Default State Name
+		
 		basicInputPanel.addComponent(0, 3, 7, 1, new JLabel("OnEntry"));
 		basicInputPanel.addComponent(4, 3, GridBagConstraints.REMAINDER, 1, onEntrySettingButton);
 
@@ -254,9 +267,27 @@ public abstract class AbstractStateSettingDialog extends JDialog {
 			return new ExitState();
 		}
 		State state = createState();
+		state.getOnEntryActionList().clear();
+		state.getOnOperateActionList().clear();
+		state.getOnExitActionList().clear();
 		state.getOnEntryActionList().addAll(getOnEntryStateActionList());
 		state.getOnOperateActionList().addAll(getOnOperateStateActionList());
 		state.getOnExitActionList().addAll(getOnExitStateActionList());
 		return state;
+	}
+
+	/**
+	 * setStateNameField
+	 * <div lang="ja">
+	 * 
+	 * @param string
+	 * </div>
+	 * <div lang="en">
+	 *
+	 * @param string
+	 * </div>
+	 */
+	public void setStateNameField(String string) {
+		this.stateNameField.setText(string);
 	}
 }

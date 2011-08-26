@@ -197,6 +197,7 @@ public class StateMachinePanel extends JPanel {
 
 	private StateMachinePanelPopupMenu stateMachinePanelPopupMenu;
 	private TransitionPopupMenu transitionPopupMenu;
+	private File currentFile;
 
 	/**
 	 * 
@@ -260,6 +261,14 @@ public class StateMachinePanel extends JPanel {
 		stateMachineShape.setSelectedState(selectedState);
 		stateMachineShape.setSelectedTransition(selectedTransition);
 		stateMachineShape.draw(g);
+		
+		if(getEditMode() == EDIT_TRANSITION && mousePosition != null) {
+			State state = getSelectedState();
+			if(state != null) {
+				Point p = stateMachineShape.getSelectedShape().getCenterPoint();
+				g2d.drawLine(p.x, p.y, mousePosition.x, mousePosition.y);
+			}
+		}
 	}
 
 	/**
@@ -299,7 +308,7 @@ public class StateMachinePanel extends JPanel {
 		}
 	}
 
-	public final File showOpenFileDialog() {
+	private final File openOpenFileDialog() {
 		JFileChooser fileChooser = new JFileChooser();
 		fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		fileChooser.setDialogTitle("Open file");
@@ -321,28 +330,38 @@ public class StateMachinePanel extends JPanel {
 		StateMachine oldStateMachine = this.stateMachine;
 		try {
 			this.stateMachine = createStateMachine(file);
-		} catch (InvalidFSMFileException e) {
+		} catch (Exception e) {
 			JOptionPane.showMessageDialog(this, "Invalid FSM file.");
 			this.stateMachine = oldStateMachine;
 			e.printStackTrace();
-		} catch (ParserConfigurationException e) {
-			JOptionPane.showMessageDialog(this, "Invalid FSM file.");
-			this.stateMachine = oldStateMachine;
-			e.printStackTrace();
-		} catch (SAXException e) {
-			JOptionPane.showMessageDialog(this, "Invalid FSM file.");
-			this.stateMachine = oldStateMachine;
-			e.printStackTrace();
-		} catch (IOException e) {
-			JOptionPane.showMessageDialog(this, "Invalid FSM file.");
-			this.stateMachine = oldStateMachine;
-			e.printStackTrace();
+			return null;
 		}
 		repaint();
 		return file;
 	}
 
-	public final File showSaveFileDialog() {
+	public final void showOpenFileDialog() {
+		File file = openOpenFileDialog();
+		if(file == null) {
+			JOptionPane.showMessageDialog(this, "Open is canceled.");
+		} else {
+			JOptionPane.showMessageDialog(this, "Open is succeeded.");
+			this.currentFile = file;
+		}
+	}
+	
+	
+	public final void showSaveFileDialog() {
+		File file = openSaveFileDialog();
+		if(file == null) {
+			JOptionPane.showMessageDialog(this, "Save is canceled.");
+		} else {
+			JOptionPane.showMessageDialog(this, "Save is succeeded.");
+			this.currentFile = file;
+		}
+	}
+		
+	public final File openSaveFileDialog() {
 		JFileChooser fileChooser = new JFileChooser();
 		fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		fileChooser.setDialogTitle("Select File");
@@ -363,18 +382,10 @@ public class StateMachinePanel extends JPanel {
 
 		try {
 			this.stateMachine.save(file);
-		} catch (FileNotFoundException e) {
+		} catch (Exception e) {
 			JOptionPane.showMessageDialog(this, "Failed to save.");
 			e.printStackTrace();
-		} catch (TransformerFactoryConfigurationError e) {
-			// TODO 自動生成された catch ブロック
-			e.printStackTrace();
-		} catch (TransformerException e) {
-			// TODO 自動生成された catch ブロック
-			e.printStackTrace();
-		} catch (ParserConfigurationException e) {
-			// TODO 自動生成された catch ブロック
-			e.printStackTrace();
+			return null;
 		}
 		return file;
 	}
@@ -479,5 +490,48 @@ public class StateMachinePanel extends JPanel {
 	 */
 	public void resume() {
 		stateMachineExecutionThread.resumeExecution();
+	}
+	
+	public boolean isSuspend() {
+		return stateMachineExecutionThread.isSuspend();
+	}
+
+	private Point mousePosition;
+	/**
+	 * setMousePosition
+	 * <div lang="ja">
+	 * 
+	 * @param point
+	 * </div>
+	 * <div lang="en">
+	 *
+	 * @param point
+	 * </div>
+	 */
+	public void setMousePosition(Point point) {
+		mousePosition = point;
+	}
+
+	/**
+	 * save
+	 * <div lang="ja">
+	 * 
+	 * </div>
+	 * <div lang="en">
+	 *
+	 * </div>
+	 */
+	public void save() {
+		if(currentFile == null) {
+			showSaveFileDialog();
+		} else {
+			try {
+				this.stateMachine.save(currentFile);
+			} catch (Exception e) {
+				JOptionPane.showMessageDialog(this, "Failed to save.");
+				e.printStackTrace();
+				JOptionPane.showMessageDialog(this, "Fail to save to file.");
+			}
+		}
 	}
 }

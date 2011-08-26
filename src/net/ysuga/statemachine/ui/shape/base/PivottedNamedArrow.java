@@ -3,6 +3,7 @@ package net.ysuga.statemachine.ui.shape.base;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 
 import net.ysuga.statemachine.transition.PivotList;
@@ -134,7 +135,12 @@ public class PivottedNamedArrow {
 		}
 		
 		if(this.isSelected()) {
-			
+			double w = 6;
+			g.draw(new Rectangle2D.Double(startPoint.x-w/2, startPoint.y-w/2, w, w));
+			for(Point p : pivotList) {
+				Rectangle2D rect = new Rectangle2D.Double(p.x-w/2, p.y-w/2, w, w);
+				g.draw(rect);
+			}
 		}
 		namedArrow.draw(g);
 	}

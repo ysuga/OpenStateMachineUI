@@ -164,7 +164,7 @@ public class DefaultStateShape implements StateShape {
 					.getInstance().get(panel.getSelectedState().getKind());
 			if (factory != null) {
 				AbstractStateSettingDialog dialog = factory
-						.createStateSettingDialog(panel.getSelectedState());
+						.createStateSettingDialog(panel, panel.getSelectedState());
 				if (dialog.doModal() == AbstractStateSettingDialog.OK_OPTION) {
 					State state = dialog.buildState();
 					try {

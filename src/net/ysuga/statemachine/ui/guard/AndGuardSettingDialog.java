@@ -63,4 +63,17 @@ public class AndGuardSettingDialog extends AbstractLogicGuardSettingDialog {
 		return new AndGuard(getGuardName(), getChildGuards());
 	}
 
+	/**
+	 * <div lang="ja">
+	 * @return
+	 * </div>
+	 * <div lang="en">
+	 * @return
+	 * </div>
+	 */
+	@Override
+	public String getKind() {
+		return StateMachineTagNames.AND;
+	}
+
 }

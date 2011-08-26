@@ -13,13 +13,16 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
-import com.sun.org.apache.bcel.internal.generic.IF_ACMPEQ;
+import javax.swing.JOptionPane;
 
+import net.ysuga.statemachine.exception.InvalidConnectionException;
+import net.ysuga.statemachine.state.State;
 import net.ysuga.statemachine.transition.PivotList;
+import net.ysuga.statemachine.ui.shape.TransitionSettingDialog;
 import net.ysuga.statemachine.ui.shape.TransitionShape;
 import net.ysuga.statemachine.ui.shape.base.PivottedNamedArrow;
-import net.ysuga.statemachine.ui.shape.state.DefaultStateShape;
 import net.ysuga.statemachine.ui.shape.state.StateShape;
+import net.ysuga.statemachine.ui.state.AbstractStateSettingDialog;
 
 /**
  * @author ysuga
@@ -45,7 +48,7 @@ public class StateMachinePanelMouseAdapter implements MouseListener,
 	}
 
 	public void mouseClicked(MouseEvent arg0) {
-		panel.setSelectedState(null);
+//		panel.setSelectedState(null);
 		for (StateShape stateShape : panel.getStateMachineShape()
 				.getStateShapeList()) {
 			if (stateShape.contains(arg0.getPoint())) {
@@ -67,21 +70,23 @@ public class StateMachinePanelMouseAdapter implements MouseListener,
 				if (arg0.getButton() == MouseEvent.BUTTON3) { // RightClick
 					panel.getTransitionPopupMenu().show(panel, arg0.getPoint());
 				}
-				
-				if(arg0.getButton() == MouseEvent.BUTTON1 && arg0.getClickCount() == 2) {
-					PivotList list = transitionShape.getTransition().getPivotList();
+
+				if (arg0.getButton() == MouseEvent.BUTTON1
+						&& arg0.getClickCount() == 2) {
+					PivotList list = transitionShape.getTransition()
+							.getPivotList();
 					Point nearestPivot = null;
 					Point mouse = arg0.getPoint();
-					for(Point pivot : list) {
+					for (Point pivot : list) {
 						int dx = pivot.x - mouse.x;
 						int dy = pivot.y - mouse.y;
-						double distance = Math.sqrt(dx*dx + dy*dy);
-						if(distance < 10) {
+						double distance = Math.sqrt(dx * dx + dy * dy);
+						if (distance < 10) {
 							nearestPivot = pivot;
 						}
 
 					}
-					if(nearestPivot != null) {
+					if (nearestPivot != null) {
 						list.remove(nearestPivot);
 					}
 				}
@@ -89,6 +94,7 @@ public class StateMachinePanelMouseAdapter implements MouseListener,
 			}
 		}
 
+		panel.setSelectedState(null);
 		if (arg0.getButton() == MouseEvent.BUTTON3) { // RightClick
 			panel.getPopupMenu().show(panel, arg0.getPoint());
 		}
@@ -103,30 +109,59 @@ public class StateMachinePanelMouseAdapter implements MouseListener,
 	}
 
 	public void mousePressed(MouseEvent arg0) {
-		panel.setSelectedState(null);
+		State selectedState = panel.getSelectedState();
+		//panel.setSelectedState(null);
 		for (StateShape stateShape : panel.getStateMachineShape()
 				.getStateShapeList()) {
-			if (stateShape.contains(arg0.getPoint())) {
-				panel.setSelectedState(stateShape.getState());
-				int dx = (int) (arg0.getPoint().x - stateShape.getX());
-				int dy = (int) (arg0.getPoint().y - stateShape.getY());
-				setSelectedOffset(new Point(dx, dy));
-
+			if (stateShape.contains(arg0.getPoint())) { // If Mouse Click is on
+														// State....
+				if (panel.getEditMode() == StateMachinePanel.EDIT_NORMAL) {
+					panel.setSelectedState(stateShape.getState());
+					int dx = (int) (arg0.getPoint().x - stateShape.getX());
+					int dy = (int) (arg0.getPoint().y - stateShape.getY());
+					setSelectedOffset(new Point(dx, dy));
+				} else if (panel.getEditMode() == StateMachinePanel.EDIT_TRANSITION) {
+					if (stateShape.getState().getName().equals("start")) {
+						JOptionPane.showMessageDialog(panel,
+								"Start State cannot be a target.");
+					} else {
+						TransitionSettingDialog dialog = new TransitionSettingDialog(
+								panel, null);
+						dialog.setSourceStateName(selectedState.getName());
+						dialog.setTargetStateName(stateShape.getState()
+								.getName());
+						panel.setSelectedState(stateShape.getState());
+						if (dialog.doModal() == AbstractStateSettingDialog.OK_OPTION) {
+							try {
+								dialog.createTransition();
+							} catch (InvalidConnectionException e) {
+								// TODO Ž©“®¶¬‚³‚ê‚½ catch ƒuƒƒbƒN
+								e.printStackTrace();
+								Object obj = "InvalidConnectionException";
+								JOptionPane.showMessageDialog(panel, obj);
+							}
+							panel.repaint();
+						}
+					}
+					panel.setEditMode(StateMachinePanel.EDIT_NORMAL);
+				}
 				panel.repaint();
 
 				return;
 			}
 		}
+		panel.setSelectedState(null);
 
-		if (arg0.getButton() == MouseEvent.BUTTON1) {
-			for (TransitionShape transitionShape : panel.getStateMachineShape()
-					.getTransitionShapeList()) {
-				if (transitionShape.contains(arg0.getPoint())) {
-					panel.setSelectedTransition(transitionShape.getTransition());
+		for (TransitionShape transitionShape : panel.getStateMachineShape()
+				.getTransitionShapeList()) {
+			if (transitionShape.contains(arg0.getPoint())) {
+				// If mouse click is on Transition ....
+				transitionShape.setSelected(true);
+				panel.setSelectedTransition(transitionShape.getTransition());
 
+				if (arg0.getButton() == MouseEvent.BUTTON1) {
 					Point mp = arg0.getPoint();
 					panel.setSelectedPivot(null);
-					// PivotList pivotList = transition.getPivotList();
 					for (Point p : transitionShape.getTransition()
 							.getPivotList()) {
 						double dist = Math.sqrt((p.x - mp.x) * (p.x - mp.x)
@@ -148,6 +183,7 @@ public class StateMachinePanelMouseAdapter implements MouseListener,
 									oldPoint.y, p.x, p.y, mp)) {
 								transitionShape.getTransition().getPivotList()
 										.add(i, panel.getSelectedPivot());
+								panel.repaint();
 								return;
 							}
 							oldPoint = p;
@@ -155,27 +191,24 @@ public class StateMachinePanelMouseAdapter implements MouseListener,
 						transitionShape.getTransition().getPivotList()
 								.add(panel.getSelectedPivot());
 					}
-				}
-			}
-		} else {
-			for (TransitionShape transitionShape : panel.getStateMachineShape()
-					.getTransitionShapeList()) {
-				if (transitionShape.contains(arg0.getPoint())) {
-					transitionShape.setSelected(true);
-					panel.setSelectedTransition(transitionShape.getTransition());
-
-					if (arg0.getButton() == MouseEvent.BUTTON3) { // RightClick
-						panel.getTransitionPopupMenu().show(panel, arg0.getPoint());
-					}
+				} else if (arg0.getButton() == MouseEvent.BUTTON3) {
+					panel.setEditMode(StateMachinePanel.EDIT_NORMAL);
+					panel.getTransitionPopupMenu().show(panel, arg0.getPoint());
+					panel.repaint();
 					return;
 				}
-			}
+			} // If mouse click is on Transition ....
 		}
 
 		if (arg0.getButton() == MouseEvent.BUTTON3) { // RightClick
 			panel.getPopupMenu().show(panel, arg0.getPoint());
 		}
 
+		if (panel.getEditMode() == StateMachinePanel.EDIT_TRANSITION) {
+			panel.setEditMode(StateMachinePanel.EDIT_NORMAL);
+		}
+		
+		//panel.setSelectedState(null);
 		panel.repaint();
 
 	}
@@ -200,7 +233,6 @@ public class StateMachinePanelMouseAdapter implements MouseListener,
 		 * fromElement); } } } repaint();
 		 */
 
-		
 		for (TransitionShape transitionShape : panel.getStateMachineShape()
 				.getTransitionShapeList()) {
 			if (panel.getSelectedTransition() != null
@@ -237,31 +269,45 @@ public class StateMachinePanelMouseAdapter implements MouseListener,
 	}
 
 	public void mouseDragged(MouseEvent arg0) {
-		if (panel.getSelectedState() != null) {
-			int x = arg0.getPoint().x - getSelectOffset().x;
-			int y = arg0.getPoint().y - getSelectOffset().y;
-			if(x < 0) x = 0;
-			if(y < 0) y = 0;
-			panel.getSelectedState().setLocation(new Point(x,y));
-		}
+		if (panel.getEditMode() == StateMachinePanel.EDIT_TRANSITION) {
+			// panel.repaint();
+			// panel.setMousePosition(arg0.getPoint());
 
-		// for(TransitionShape transitionShape :
-		// panel.getStateMachineShape().getTransitionShapeList()) {
-		// if(transitionShape.contains(arg0.getPoint())) {
-		if (panel.getSelectedTransition() != null) {
-			Point mp = arg0.getPoint();
-			int x = mp.x;
-			int y = mp.y;
-			if(x < 0) x = 0;
-			if(y < 0) y = 0;
-			if(panel.getSelectedPivot() != null) {
-				panel.getSelectedPivot().setLocation(x, y);
+		} else {
+			if (panel.getSelectedState() != null) {
+				int x = arg0.getPoint().x - getSelectOffset().x;
+				int y = arg0.getPoint().y - getSelectOffset().y;
+				if (x < 0)
+					x = 0;
+				if (y < 0)
+					y = 0;
+				panel.getSelectedState().setLocation(new Point(x, y));
+			}
+
+			// for(TransitionShape transitionShape :
+			// panel.getStateMachineShape().getTransitionShapeList()) {
+			// if(transitionShape.contains(arg0.getPoint())) {
+			if (panel.getSelectedTransition() != null) {
+				Point mp = arg0.getPoint();
+				int x = mp.x;
+				int y = mp.y;
+				if (x < 0)
+					x = 0;
+				if (y < 0)
+					y = 0;
+				if (panel.getSelectedPivot() != null) {
+					panel.getSelectedPivot().setLocation(x, y);
+				}
 			}
 		}
 		panel.repaint();
 	}
 
 	public void mouseMoved(MouseEvent arg0) {
-
+		if (panel.getEditMode() == StateMachinePanel.EDIT_TRANSITION) {
+			// panel.repaint();
+			panel.setMousePosition(arg0.getPoint());
+			panel.repaint();
+		}
 	}
 }

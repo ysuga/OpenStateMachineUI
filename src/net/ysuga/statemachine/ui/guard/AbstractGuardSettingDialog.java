@@ -31,9 +31,9 @@ public abstract class AbstractGuardSettingDialog extends JDialog {
 
 	static int okCount = 0;
 
-	JPanel contentPane;
+	private JPanel contentPane;
 
-	JPanel parentContentPane;
+	private JPanel parentContentPane;
 
 	private TransitionSettingDialog transitionSettingDialog;
 	
@@ -46,7 +46,8 @@ public abstract class AbstractGuardSettingDialog extends JDialog {
 	public JButton getOKButton() {
 		return okButton;
 	}
-	JTextField guardNameField;
+	
+	private JTextField guardNameField;
 	
 	public String getGuardName() {
 		return guardNameField.getText();
@@ -57,8 +58,12 @@ public abstract class AbstractGuardSettingDialog extends JDialog {
 		this.transitionSettingDialog = transitionSettingDialog;
 
 		parentContentPane = (JPanel) this.getContentPane();
-		guardNameField = new JTextField("Guard");	
+		StringBuilder kindBuilder = new StringBuilder(getKind());
+		kindBuilder.replace(0, 1, kindBuilder.substring(0,1).toLowerCase());
+		kindBuilder.append("Guard");
+		guardNameField = new JTextField(kindBuilder.toString());	
 	}
+	
 	/**
 	 * @param loader
 	 * @param arg0
@@ -152,4 +157,5 @@ public abstract class AbstractGuardSettingDialog extends JDialog {
 	}
 	
 
+	public abstract String getKind();
 }

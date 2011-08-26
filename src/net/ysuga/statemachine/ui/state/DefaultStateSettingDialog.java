@@ -10,6 +10,7 @@ package net.ysuga.statemachine.ui.state;
 
 import net.ysuga.statemachine.state.DefaultState;
 import net.ysuga.statemachine.state.State;
+import net.ysuga.statemachine.ui.StateMachinePanel;
 
 /**
  * @author ysuga
@@ -27,8 +28,8 @@ public class DefaultStateSettingDialog extends AbstractStateSettingDialog {
 	 * @param state
 	 * </div>
 	 */
-	public DefaultStateSettingDialog(State state) {
-		super(state);
+	public DefaultStateSettingDialog(StateMachinePanel panel, State state) {
+		super(panel, state);
 	}
 
 	/**

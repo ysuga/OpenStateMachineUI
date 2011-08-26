@@ -10,6 +10,7 @@ package net.ysuga.statemachine.ui.guard;
 
 import javax.swing.JLabel;
 
+import net.ysuga.statemachine.StateMachineTagNames;
 import net.ysuga.statemachine.exception.InvalidGuardException;
 import net.ysuga.statemachine.guard.Guard;
 import net.ysuga.statemachine.guard.NullGuard;
@@ -82,4 +83,16 @@ public class NullGuardSettingDialog extends AbstractGuardSettingDialog {
 		
 	}
 
+	/**
+	 * <div lang="ja">
+	 * @return
+	 * </div>
+	 * <div lang="en">
+	 * @return
+	 * </div>
+	 */
+	@Override
+	public String getKind() {
+		return StateMachineTagNames.NULLGUARD;
+	}
 }

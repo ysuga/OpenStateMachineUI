@@ -18,12 +18,11 @@ import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
 
-import net.ysuga.statemachine.exception.InvalidConnectionException;
+import net.ysuga.statemachine.StateMachineTagNames;
 import net.ysuga.statemachine.exception.InvalidStateNameException;
 import net.ysuga.statemachine.state.State;
 import net.ysuga.statemachine.state.StateCondition;
 import net.ysuga.statemachine.ui.StateMachinePanel;
-import net.ysuga.statemachine.ui.shape.TransitionSettingDialog;
 
 
 /**
@@ -70,7 +69,7 @@ public class StatePopupMenu {
 					public void actionPerformed(ActionEvent arg0) {
 						StateSettingDialogFactory factory = StateSettingDialogFactoryManager.getInstance().get(panel.getSelectedState().getKind());
 						if(factory != null) {
-							AbstractStateSettingDialog dialog = factory.createStateSettingDialog(panel.getSelectedState()); 
+							AbstractStateSettingDialog dialog = factory.createStateSettingDialog(panel, panel.getSelectedState()); 
 							if( dialog.doModal() == AbstractStateSettingDialog.OK_OPTION ) {
 								State state = dialog.buildState();
 								try {
@@ -147,6 +146,18 @@ public class StatePopupMenu {
 
 
 	private void onAddTransition() {
+		if(panel.getSelectedState().getName().equals(StateMachineTagNames.START)) {
+			if(panel.getSelectedState().getNumTransition() > 0) {
+				JOptionPane.showMessageDialog(panel, "Start State cannot have prural transitions");
+				return;
+			}
+		}
+		if(panel.getSelectedState().getName().equals(StateMachineTagNames.EXIT)) {
+			JOptionPane.showMessageDialog(panel, "Exit State cannot have any transitions");
+			return;
+		}
+		panel.setEditMode(StateMachinePanel.EDIT_TRANSITION);
+		/**
 		TransitionSettingDialog dialog =  new TransitionSettingDialog(panel); 
 		dialog.setSourceStateName(panel.getSelectedState().getName());
 		if( dialog.doModal() == AbstractStateSettingDialog.OK_OPTION ) {
@@ -160,6 +171,7 @@ public class StatePopupMenu {
 			}
 			panel.repaint();
 		}
+		*/
 	}
 	
 

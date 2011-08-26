@@ -63,4 +63,16 @@ public class NotGuardSettingDialog extends AbstractLogicGuardSettingDialog {
 		return new NotGuard(getGuardName(), getChildGuards()[0]);
 	}
 
+	/**
+	 * <div lang="ja">
+	 * @return
+	 * </div>
+	 * <div lang="en">
+	 * @return
+	 * </div>
+	 */
+	@Override
+	public String getKind() {
+		return StateMachineTagNames.NOT;
+	}
 }

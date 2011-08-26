@@ -10,6 +10,7 @@ package net.ysuga.statemachine.ui.state;
 
 import net.ysuga.statemachine.StateMachineTagNames;
 import net.ysuga.statemachine.state.State;
+import net.ysuga.statemachine.ui.StateMachinePanel;
 
 /**
  * @author ysuga
@@ -41,8 +42,8 @@ public class DefaultStateSettingDialogFactory implements StateSettingDialogFacto
 	 * </div>
 	 */
 	@Override
-	public AbstractStateSettingDialog createStateSettingDialog(State state) {
-		return new DefaultStateSettingDialog(state);
+	public AbstractStateSettingDialog createStateSettingDialog(StateMachinePanel panel, State state) {
+		return new DefaultStateSettingDialog(panel, state);
 	}
 
 	/**

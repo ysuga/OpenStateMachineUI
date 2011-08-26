@@ -89,7 +89,7 @@ public class StateMachinePanelPopupMenu {
 		
 		public void actionPerformed(ActionEvent arg0) {
 			StateSettingDialogFactory factory = StateSettingDialogFactoryManager.getInstance().get(kind);
-			AbstractStateSettingDialog dialog = factory.createStateSettingDialog(null);
+			AbstractStateSettingDialog dialog = factory.createStateSettingDialog(panel, null);
 			if(dialog.doModal() == AbstractStateSettingDialog.OK_OPTION) {
 				State state = dialog.buildState();
 				try {
@@ -238,7 +238,7 @@ public class StateMachinePanelPopupMenu {
 		});
 		saveMenuItem = new JMenuItem(new AbstractAction("Save"){
 			public void actionPerformed(ActionEvent e) {
-				onSaveAs();
+				onSave();
 			}
 		});
 		saveAsMenuItem = new JMenuItem(new AbstractAction("Save As..."){
@@ -281,6 +281,10 @@ public class StateMachinePanelPopupMenu {
 	 */
 	public void onOpen() {
 		panel.showOpenFileDialog();
+	}
+	
+	public void onSave() {
+		panel.save();
 	}
 	
 	public void onSaveAs() {

@@ -11,6 +11,7 @@ package net.ysuga.statemachine.ui.guard;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 
+import net.ysuga.statemachine.StateMachineTagNames;
 import net.ysuga.statemachine.exception.InvalidGuardException;
 import net.ysuga.statemachine.guard.DelayGuard;
 import net.ysuga.statemachine.guard.Guard;
@@ -85,4 +86,16 @@ public class DelayGuardSettingDialog extends AbstractGuardSettingDialog {
 		delayField.setText(Long.toString(((DelayGuard)guard).getInterval()));
 	}
 
+	/**
+	 * <div lang="ja">
+	 * @return
+	 * </div>
+	 * <div lang="en">
+	 * @return
+	 * </div>
+	 */
+	@Override
+	public String getKind() {
+		return StateMachineTagNames.DELAY;
+	}
 }
