@@ -61,7 +61,19 @@ public class NamedRoundBox extends RoundRectangle2D.Double {
 
 	public NamedRoundBox(String name, double x, double y, double boxwidth,
 			double boxheight) {
-		super(x, y, boxwidth, boxheight, boxheight / 6, boxheight / 6);
+		super(x, y,
+				(new Font(Font.SERIF, 0, 16))
+						.createGlyphVector(
+								new FontRenderContext(new AffineTransform(),
+										false, false), name).getVisualBounds()
+						.getWidth() + clearance * 2 > boxwidth ? (new Font(
+						Font.SERIF, 0, 16))
+						.createGlyphVector(
+								new FontRenderContext(new AffineTransform(),
+										false, false), name).getVisualBounds()
+						.getWidth()
+						+ clearance * 2 : boxwidth, boxheight, boxheight / 12,
+				boxheight / 12);
 		this.name = name;
 		Font font = new Font(Font.SERIF, 0, 16);
 		glyphVector = font.createGlyphVector(new FontRenderContext(
